@@ -66,9 +66,13 @@ NAME is the function name, COMMAND is the command that should be executed"
                                          t)))
      (hog-run-command ,command project)))
 
+;;;###autoload (autoload 'hog-create-project "hog-emacs" nil t)
 (hog-create-command! hog-create-project "Hog/CreateProject.sh")
+;;;###autoload (autoload 'hog-launch-synthesis "hog-emacs" nil t)
 (hog-create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -j%d" hog-number-of-jobs))
+;;;###autoload (autoload 'hog-launch-workflow "hog-emacs" nil t)
 (hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -j%d" hog-number-of-jobs))
+;;;###autoload (autoload 'hog-launch-impl "hog-emacs" nil t)
 (hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -j%d" hog-number-of-jobs))
 
 (defun hog-run-command (command project &rest args)
