@@ -45,13 +45,16 @@
                                       (hog-get-projects)
                                       nil
                                       t)))
-  (let ((command (format "cd %s && source %s && vivado %s &"
-                         (projectile-project-root)
-                         hog-vivado-path
-                         (hog-get-project-xml project)
-                         )))
-    (message (format "Opening Hog Project %s" project))
-    (async-shell-command command)))
+  (if (not (string-equal project ""))
+      (progn
+        (let ((command (format "cd %s && source %s && vivado %s &"
+                               (projectile-project-root)
+                               hog-vivado-path
+                               (hog-get-project-xml project)
+                               )))
+          (message (format "Opening Hog Project %s" project))
+          (async-shell-command command)))
+    (message "You must specify a valid project!")))
 
 ;;;###autoload (autoload 'hog-create-command! "hog-emacs")
 (defmacro hog-create-command! (name command)
@@ -62,7 +65,9 @@ NAME is the function name, COMMAND is the command that should be executed"
                                          (hog-get-projects)
                                          nil
                                          t)))
-     (hog-run-command ,command project)))
+     (if (not (string-equal project ""))
+         (hog-run-command ,command project))
+     (message "You must specify a valid project!")))
 
 ;;;###autoload (autoload 'hog-create-project "hog-emacs" "Create a Hog project" t)
 (hog-create-command! hog-create-project "Hog/CreateProject.sh")
@@ -81,13 +86,13 @@ NAME is the function name, COMMAND is the command that should be executed"
 
     ;; construct the output command
     (let ((cmd-str (format "cd %s && source %s && %s%s %s %s%s | tee hog.log | ccze -A"
-                       (projectile-project-root)
-                       hog-vivado-path
-                       (projectile-project-root)
-                       command
-                       project
-                       (if args " " "")
-                       (string-join args " "))))
+                           (projectile-project-root)
+                           hog-vivado-path
+                           (projectile-project-root)
+                           command
+                           project
+                           (if args " " "")
+                           (string-join args " "))))
       ;; ... and run it
       (async-shell-command cmd-str buf))
 
@@ -114,32 +119,32 @@ NAME is the function name, COMMAND is the command that should be executed"
              (xml-get-children (assq 'FileSet (assq 'FileSets (assq 'Project (xml-parse-file project-file)))) 'File))
       ;; for each node, extract the path to the .src file
       (let ((src-file
-            ;; strip off the vivado relative path; make it relative to the repo root instead
-            (replace-regexp-in-string "$PPRDIR\/\.\.\/\.\.\/" "" (xml-get-attribute file-node 'Path ))))
-      ;; for each node, extract the library property (only applies to vhdl sources)
-      (dolist (attr (xml-get-children (assq 'FileInfo (cdr file-node)) 'Attr))
-        (when (equal (xml-get-attribute attr 'Name) "Library")
-          (let ((lib  (xml-get-attribute attr 'Val)))
-            (setf lib-list (hog-append-to-library lib-list lib src-file))))))
-    lib-list)))
+             ;; strip off the vivado relative path; make it relative to the repo root instead
+             (replace-regexp-in-string "$PPRDIR\/\.\.\/\.\.\/" "" (xml-get-attribute file-node 'Path ))))
+        ;; for each node, extract the library property (only applies to vhdl sources)
+        (dolist (attr (xml-get-children (assq 'FileInfo (cdr file-node)) 'Attr))
+          (when (equal (xml-get-attribute attr 'Name) "Library")
+            (let ((lib  (xml-get-attribute attr 'Val)))
+              (setf lib-list (hog-append-to-library lib-list lib src-file))))))
+      lib-list)))
 
 (defun hog-parse-project-xml (project)
   ""
   (hog-parse-vivado-xml (hog-get-project-xml project)))
 
 (defvar hog-ieee-library
-      '("ieee" (
-                "/usr/local/lib/ghdl/src/synopsys/*.vhdl"
-                "/usr/local/lib/ghdl/src/std/v08/*.vhdl"
-                "/usr/local/lib/ghdl/src/ieee2008/*.vhdl"
-                "/usr/lib/ghdl/src/synopsys/*.vhdl"
-                "/usr/lib/ghdl/src/std/v08/*.vhdl"
-                "/usr/lib/ghdl/src/ieee2008/*.vhdl")))
+  '("ieee" (
+            "/usr/local/lib/ghdl/src/synopsys/*.vhdl"
+            "/usr/local/lib/ghdl/src/std/v08/*.vhdl"
+            "/usr/local/lib/ghdl/src/ieee2008/*.vhdl"
+            "/usr/lib/ghdl/src/synopsys/*.vhdl"
+            "/usr/lib/ghdl/src/std/v08/*.vhdl"
+            "/usr/lib/ghdl/src/ieee2008/*.vhdl")))
 
 (defvar hog-unisim-library
-      `("unisim" (
-                  ,(format "%sdata/vhdl/src/unisims/unisim_VCOMP.vhd"
-                           (file-name-directory hog-vivado-path)))))
+  `("unisim" (
+              ,(format "%sdata/vhdl/src/unisims/unisim_VCOMP.vhd"
+                       (file-name-directory hog-vivado-path)))))
 
 (defun hog-append-to-library (src-list lib-name file-name)
   ""
@@ -156,36 +161,36 @@ NAME is the function name, COMMAND is the command that should be executed"
 ;;------------------------------------------------------------------------------
 
 (defvar hog-vhdl-tool-preferences
-      '(
-        ("Preferences" .
-         (("TypeCheck"            . "True")
-          ("MultiLineErrors"      . "True")
-          ("CheckOnChange"        . "True")
-          ("Lint"                 . "True")
-          ("FirstSyntaxErrorOnly" . "True")))
+  '(
+    ("Preferences" .
+     (("TypeCheck"            . "True")
+      ("MultiLineErrors"      . "True")
+      ("CheckOnChange"        . "True")
+      ("Lint"                 . "True")
+      ("FirstSyntaxErrorOnly" . "True")))
 
-        ("Lint" .
-         (("Threshold" ."Warning")
-          ("DeclaredNotAssigned" . (
-                                    ("enabled"  . "True")
-                                    ("severity" . "Warning")))
-          ("DeclaredNotRead"           . "True")
-          ("ReadNotAssigned"           . "True")
-          ("SensitivityListCheck"      . "True")
-          ("ExtraSensitivityListCheck" . "True")
-          ("DuplicateSensitivity"      . "True")
-          ("LatchCheck"                . "True")
-          ("VariableNotRead"           . "True")
-          ("PortNotRead"               . "True")
-          ("PortNotWritten"            . "True")
-          ("NoPrimaryUnit"             . "True")
-          ("DuplicateLibraryImport"    . "True")
-          ("DuplicatePackageUsage"     . "True")
-          ("DeprecatedPackages"        . "True")
-          ("ImplicitLibraries"         . "True")
-          ("DisconnectedPorts"         . "True")
-          ("IntNoRange"                . "True")
-          ))))
+    ("Lint" .
+     (("Threshold" ."Warning")
+      ("DeclaredNotAssigned" . (
+                                ("enabled"  . "True")
+                                ("severity" . "Warning")))
+      ("DeclaredNotRead"           . "True")
+      ("ReadNotAssigned"           . "True")
+      ("SensitivityListCheck"      . "True")
+      ("ExtraSensitivityListCheck" . "True")
+      ("DuplicateSensitivity"      . "True")
+      ("LatchCheck"                . "True")
+      ("VariableNotRead"           . "True")
+      ("PortNotRead"               . "True")
+      ("PortNotWritten"            . "True")
+      ("NoPrimaryUnit"             . "True")
+      ("DuplicateLibraryImport"    . "True")
+      ("DuplicatePackageUsage"     . "True")
+      ("DeprecatedPackages"        . "True")
+      ("ImplicitLibraries"         . "True")
+      ("DisconnectedPorts"         . "True")
+      ("IntNoRange"                . "True")
+      ))))
 
 (defun hog-vhdl-tool-walk-preferences (prefs)
   ""
@@ -234,11 +239,15 @@ NAME is the function name, COMMAND is the command that should be executed"
                                       (hog-get-projects)
                                       nil
                                       t)))
-  (let ((yaml ""))
-    (setq yaml (concat yaml (hog-vhdl-tool-parse-libs (hog-parse-project-xml project))))
-    (setq yaml (concat yaml (hog-vhdl-tool-walk-preferences hog-vhdl-tool-preferences)))
-    (shell-command (format "echo '%s' > %svhdltool-config.yaml" yaml (projectile-project-root)))
-    ))
+  (if (not (string-equal project ""))
+      (progn
+        (let ((yaml ""))
+          (setq yaml (concat yaml (hog-vhdl-tool-parse-libs (hog-parse-project-xml project))))
+          (setq yaml (concat yaml (hog-vhdl-tool-walk-preferences hog-vhdl-tool-preferences)))
+          (shell-command (format "echo '%s' > %svhdltool-config.yaml" yaml (projectile-project-root)))
+          ))
+    (message "You must specify a valid project!")))
+
 
 (provide 'hog-emacs)
 ;;; hog-emacs.el ends here
