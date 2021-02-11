@@ -21,9 +21,6 @@
 
 ;;; Code:
 
-
-;; TODO: add Unisim libraries
-
 (defvar hog-vivado-path "~/Xilinx/Vivado/2019.2/settings64.sh")
 (defvar hog-number-of-jobs 4)
 
@@ -55,25 +52,25 @@
     (message (format "Opening Hog Project %s" project))
     (async-shell-command command)))
 
-(defmacro hog-create-command! (name command docstring)
+;;;###autoload (autoload 'hog-create-command! "hog-emacs")
+(defmacro hog-create-command! (name command)
   "Macro to create a Hog interactive command.
 NAME is the function name, COMMAND is the command that should be executed"
   `(defun ,name (project)
-     ,docstring
      (interactive (list (completing-read "Project: "
                                          (hog-get-projects)
                                          nil
                                          t)))
      (hog-run-command ,command project)))
 
-;;;###autoload (autoload 'hog-create-project "hog-emacs" nil t)
-(hog-create-command! hog-create-project "Hog/CreateProject.sh" "Create a Hog project")
-;;;###autoload (autoload 'hog-launch-synthesis "hog-emacs" nil t)
-(hog-create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -j%d" hog-number-of-jobs) "Launch Project Synthesis")
-;;;###autoload (autoload 'hog-launch-workflow "hog-emacs" nil t)
-(hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -j%d" hog-number-of-jobs) "Launch Project Implementation")
-;;;###autoload (autoload 'hog-launch-impl "hog-emacs" nil t)
-(hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -j%d" hog-number-of-jobs) "Launch Project Full Workflow")
+;;;###autoload (autoload 'hog-create-project "hog-emacs" "Create a Hog project" t)
+(hog-create-command! hog-create-project "Hog/CreateProject.sh")
+;;;###autoload (autoload 'hog-launch-synthesis "hog-emacs" "Launch Project Synthesis" t)
+(hog-create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -j%d" hog-number-of-jobs))
+;;;###autoload (autoload 'hog-launch-workflow "hog-emacs" "Launch Project Implementation" t)
+(hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -j%d" hog-number-of-jobs))
+;;;###autoload (autoload 'hog-launch-impl "hog-emacs" "Launch Project Full Workflow" t)
+(hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -j%d" hog-number-of-jobs))
 
 (defun hog-run-command (command project &rest args)
   "Run a Hog COMMAND for a given PROJECT (and colorize it)."
@@ -229,8 +226,9 @@ NAME is the function name, COMMAND is the command that should be executed"
     text
     ))
 
+;;;###autoload
 (defun hog-vhdl-tool-create-project-yaml (project)
-  ""
+  "Create a VHDL-tool yaml file for a Hog PROJECT"
   (interactive (list (completing-read "Project: "
                                       (hog-get-projects)
                                       nil
