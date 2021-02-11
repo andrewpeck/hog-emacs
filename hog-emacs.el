@@ -30,7 +30,8 @@
   ;; /home/topham/project/Top/myproject --> myproject
   (mapcar (lambda (file) (file-name-nondirectory (directory-file-name file)))
           ;; list all directories in the Top/ folder
-          (split-string (shell-command-to-string (format "ls -d %sTop/*" (projectile-project-root))))))
+          (if (file-directory-p (format "%sTop" (projectile-project-root)))
+              (split-string (shell-command-to-string (format "ls -d %sTop/*" (projectile-project-root)))))))
 
 (defun hog-get-project-xml (project)
   "Return the XML (XPR) file for a given Hog PROJECT."
