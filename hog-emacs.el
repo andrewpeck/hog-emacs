@@ -55,21 +55,21 @@
     (message (format "Opening Hog Project %s" project))
     (async-shell-command command)))
 
-(defmacro hog-create-command! (name command)
+(defmacro hog-create-command! (name command docstring)
   "Macro to create a Hog interactive command.
 NAME is the function name, COMMAND is the command that should be executed"
   `(defun ,name (project)
-     "Project interactive command function"
+     ,docstring
      (interactive (list (completing-read "Project: "
                                          (hog-get-projects)
                                          nil
                                          t)))
      (hog-run-command ,command project)))
 
-(hog-create-command! hog-create-project "Hog/CreateProject.sh")
-(hog-create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -j%d" hog-number-of-jobs))
-(hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -j%d" hog-number-of-jobs))
-(hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -j%d" hog-number-of-jobs))
+(hog-create-command! hog-create-project "Hog/CreateProject.sh" "Create a Hog project")
+(hog-create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -j%d" hog-number-of-jobs) "Launch Project Synthesis")
+(hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -j%d" hog-number-of-jobs) "Launch Project Implementation")
+(hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -j%d" hog-number-of-jobs) "Launch Project Full Workflow")
 
 (defun hog-run-command (command project &rest args)
   "Run a Hog COMMAND for a given PROJECT (and colorize it)."
