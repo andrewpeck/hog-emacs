@@ -110,20 +110,20 @@ NAME is the function name, COMMAND is the command that should be executed"
   "Parse a Vivado XPR PROJECT-FILE into a list of libraries and their sources."
   ;; https://stackoverflow.com/questions/43806637/parsing-xml-file-with-elisp
   (require 'xml)
-  (setq lib-list (list))
-  (dolist (file-node
-           ;; get a list of all the Project -> FileSets -> FileSet --> File nodes
-           (xml-get-children (assq 'FileSet (assq 'FileSets (assq 'Project (xml-parse-file project-file)))) 'File))
-    ;; for each node, extract the path to the .src file
-    (setq src-file
-          ;; strip off the vivado relative path; make it relative to the repo root instead
-          (replace-regexp-in-string "$PPRDIR\/\.\.\/\.\.\/" "" (xml-get-attribute file-node 'Path )))
-    ;; for each node, extract the library property (only applies to vhdl sources)
-    (dolist (attr (xml-get-children (assq 'FileInfo (cdr file-node)) 'Attr))
-      (when (equal (xml-get-attribute attr 'Name) "Library")
-        (setq lib  (xml-get-attribute attr 'Val))
-        (setf lib-list (hog-append-to-library lib-list lib src-file)))))
-  lib-list)
+  (let ((lib-list (list)))
+    (dolist (file-node
+             ;; get a list of all the Project -> FileSets -> FileSet --> File nodes
+             (xml-get-children (assq 'FileSet (assq 'FileSets (assq 'Project (xml-parse-file project-file)))) 'File))
+      ;; for each node, extract the path to the .src file
+      (let ((src-file
+            ;; strip off the vivado relative path; make it relative to the repo root instead
+            (replace-regexp-in-string "$PPRDIR\/\.\.\/\.\.\/" "" (xml-get-attribute file-node 'Path ))))
+      ;; for each node, extract the library property (only applies to vhdl sources)
+      (dolist (attr (xml-get-children (assq 'FileInfo (cdr file-node)) 'Attr))
+        (when (equal (xml-get-attribute attr 'Name) "Library")
+          (let ((lib  (xml-get-attribute attr 'Val)))
+            (setf lib-list (hog-append-to-library lib-list lib src-file))))))
+    lib-list)))
 
 (defun hog-parse-project-xml (project)
   ""
