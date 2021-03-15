@@ -72,11 +72,11 @@ NAME is the function name, COMMAND is the command that should be executed"
 ;;;###autoload (autoload 'hog-create-project "hog-emacs" "Create a Hog project" t)
 (hog-create-command! hog-create-project "Hog/CreateProject.sh")
 ;;;###autoload (autoload 'hog-launch-synthesis "hog-emacs" "Launch Project Synthesis" t)
-(hog-create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -j%d" hog-number-of-jobs))
+(hog-create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -njobs %d" hog-number-of-jobs))
 ;;;###autoload (autoload 'hog-launch-workflow "hog-emacs" "Launch Project Implementation" t)
-(hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -j%d" hog-number-of-jobs))
+(hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -njobs %d" hog-number-of-jobs))
 ;;;###autoload (autoload 'hog-launch-impl "hog-emacs" "Launch Project Full Workflow" t)
-(hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -j%d" hog-number-of-jobs))
+(hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -njobs %d" hog-number-of-jobs))
 
 (defun hog-run-command (command project &rest args)
   "Run a Hog COMMAND for a given PROJECT (and colorize it)."
