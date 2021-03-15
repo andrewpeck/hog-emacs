@@ -66,8 +66,8 @@ NAME is the function name, COMMAND is the command that should be executed"
                                          nil
                                          t)))
      (if (not (string-equal project ""))
-         (hog-run-command ,command project))
-     (message "You must specify a valid project!")))
+         (hog-run-command ,command project)
+       (message "You must specify a valid project!"))))
 
 ;;;###autoload (autoload 'hog-create-project "hog-emacs" "Create a Hog project" t)
 (hog-create-command! hog-create-project "Hog/CreateProject.sh")
