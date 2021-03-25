@@ -125,8 +125,9 @@ NAME is the function name, COMMAND is the command that should be executed"
         (dolist (attr (xml-get-children (assq 'FileInfo (cdr file-node)) 'Attr))
           (when (equal (xml-get-attribute attr 'Name) "Library")
             (let ((lib  (xml-get-attribute attr 'Val)))
-              (setf lib-list (hog-append-to-library lib-list lib src-file))))))
-      lib-list)))
+              (setf lib-list (hog-append-to-library lib-list lib src-file)))))))
+    lib-list
+    ))
 
 (defun hog-parse-project-xml (project)
   ""
