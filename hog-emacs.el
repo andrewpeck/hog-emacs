@@ -249,6 +249,47 @@ NAME is the function name, COMMAND is the command that should be executed"
           ))
     (message "You must specify a valid project!")))
 
+(defun hog-vhdl-ls-lib-to-string (library)
+  ""
+  (let ((lib-name (car library))
+        (lib-files (car (cdr library)))
+        (pad "  ")
+        (str "")
+        )
+    (setq str (concat str (format "%s.files = [\n" lib-name)))
+    (dolist (file lib-files)
+      (setq str (concat str pad "\"" file "\",\n" )))
+    (setq str (concat str "]\n"))
+    str))
+
+(defun hog-vhdl-ls-parse-libs (libraries)
+  ""
+  (let ((text "[libraries]\n"))
+    (setq libraries (append libraries (list hog-ieee-library)))
+    (setq libraries (append libraries (list hog-unisim-library)))
+    (dolist (library libraries)
+      ;;(concat text (hog-vhdl-ls-lib-to-string library))
+      ;;(print (concat text (hog-vhdl-ls-lib-to-string library)))
+      (setq text (concat text (hog-vhdl-ls-lib-to-string library)))
+      )
+    text
+    ))
+
+;;;###autoload
+(defun hog-vhdl-ls-create-project-toml (project)
+  "Create a VHDL-tool yaml file for a Hog PROJECT"
+  (interactive (list (completing-read "Project: "
+                                      (hog-get-projects)
+                                      nil
+                                      t)))
+  (if (not (string-equal project ""))
+      (progn
+        (let ((yaml ""))
+          (setq yaml (concat yaml (hog-vhdl-ls-parse-libs (hog-parse-project-xml project))))
+          (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (projectile-project-root)))
+          ))
+    (message "You must specify a valid project!")))
+
 
 (provide 'hog-emacs)
 ;;; hog-emacs.el ends here
