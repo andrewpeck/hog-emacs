@@ -96,7 +96,7 @@ NAME is the function name, COMMAND is the command that should be executed"
                            (if args " " "")
                            (string-join args " "))))
       ;; ... and run it
-      (async-shell-command cmd-str buf))
+      (compile cmd-str buf))
 
     ;; change the output buffer to a read-only, evil normal state buffer
     (with-current-buffer buf (evil-normal-state) (view-mode))))
