@@ -290,6 +290,62 @@ NAME is the function name, COMMAND is the command that should be executed"
           ))
     (message "You must specify a valid project!")))
 
+;;------------------------------------------------------------------------------
+;; GHDL-Ls Project File Creation
+;;------------------------------------------------------------------------------
+
+(defvar ghdl-ls-options
+  '(options
+    (ghdl_analysis .
+                   ["--workdir=work"
+                    "--ieee=synopsys"
+                    "-fexplicit"
+                    "--warn-library"
+                    "--warn-default-binding"
+                    "--warn-binding"
+                    "--warn-reserved"
+                    "--warn-nested-comment"
+                    "--warn-parenthesis"
+                    "--warn-vital-generic"
+                    "--warn-delayed-checks"
+                    "--warn-body"
+                    "--warn-specs"
+                    "--warn-runtime-error"
+                    "--warn-shared"
+                    "--warn-hide"
+                    "--warn-unused"
+                    "--warn-others"
+                    "--warn-pure"
+                    "--warn-static"
+                    "--std=08"
+                    "-fexplicit"])))
+
+(defun ghdl-ls-format-file-list (file-list)
+  (list (cons
+         'files
+         (mapcar
+          (lambda (file-name)
+            (list `(file . ,file-name) '(language . "vhdl")))
+          file-list))))
+
+;;;###autoload
+(defun hog-ghdl-ls-create-project-json (project)
+  "Create a ghdl-ls yaml file for a Hog PROJECT"
+  (interactive (list (completing-read "Project: "
+                                      (hog-get-projects)
+                                      nil
+                                      t)))
+  (if (not (string-equal project ""))
+      (progn
+        (let ((output-file (format "%shdl-prj.json" (projectile-project-root)))
+              (files (hog-parse-project-xml project)))
+          (with-temp-file output-file
+            (progn
+              (insert
+               (json-encode
+                (append (list ghdl-ls-options) (ghdl-ls-format-file-list files))))
+              (json-pretty-print-buffer)))))
+    (message "You must specify a valid project!")))
 
 (provide 'hog-emacs)
 ;;; hog-emacs.el ends here
