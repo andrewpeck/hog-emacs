@@ -33,7 +33,7 @@
           ;; list all directories in the Top/ folder
           (if (file-directory-p (format "%sTop" (projectile-project-root)))
               (sort (split-string (shell-command-to-string
-                             (format "find %sTop -name list -type d" (projectile-project-root)))) #'string<))))
+                                   (format "find %sTop -name list -type d" (projectile-project-root)))) #'string<))))
 
 (defun hog-get-project-xml (project)
   "Return the XML (XPR) file for a given Hog PROJECT."
@@ -274,6 +274,10 @@ NAME is the function name, COMMAND is the command that should be executed"
       )
     text
     ))
+
+;;------------------------------------------------------------------------------
+;; VHDL LS Project File Creation
+;;------------------------------------------------------------------------------
 
 ;;;###autoload
 (defun hog-vhdl-ls-create-project-toml (project)
