@@ -243,10 +243,10 @@ NAME is the function name, COMMAND is the command that should be executed"
 (hog-project-do!
  hog-vhdl-tool-create-project-yaml
  "Create a VHDL-tool yaml file for a Hog PROJECT"
-   (let ((yaml ""))
-     (setq yaml (concat yaml (hog-vhdl-tool-parse-libs (hog-parse-project-xml project))))
-     (setq yaml (concat yaml (hog-vhdl-tool-walk-preferences hog-vhdl-tool-preferences)))
-     (shell-command (format "echo '%s' > %svhdltool-config.yaml" yaml (projectile-project-root)))))
+ (let ((yaml ""))
+   (setq yaml (concat yaml (hog-vhdl-tool-parse-libs (hog-parse-project-xml project))))
+   (setq yaml (concat yaml (hog-vhdl-tool-walk-preferences hog-vhdl-tool-preferences)))
+   (shell-command (format "echo '%s' > %svhdltool-config.yaml" yaml (projectile-project-root)))))
 
 (defun hog-vhdl-ls-lib-to-string (library)
   ""
@@ -279,9 +279,9 @@ NAME is the function name, COMMAND is the command that should be executed"
 (hog-project-do!
  hog-vhdl-ls-create-project-toml
  "Create a VHDL-tool yaml file for a Hog PROJECT"
-   (let ((yaml ""))
-     (setq yaml (concat yaml (hog-vhdl-ls-parse-libs (hog-parse-project-xml project))))
-     (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (projectile-project-root)))))
+ (let ((yaml ""))
+   (setq yaml (concat yaml (hog-vhdl-ls-parse-libs (hog-parse-project-xml project))))
+   (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (projectile-project-root)))))
 
 ;;------------------------------------------------------------------------------
 ;; GHDL-Ls Project File Creation
