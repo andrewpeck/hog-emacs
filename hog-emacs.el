@@ -40,24 +40,6 @@
   ;; TODO: add ppr handling
   (format "%sProjects/%s/%s.xpr" (projectile-project-root) project project))
 
-;;;###autoload
-(defun hog-open-project (project)
-  "Open the Hog PROJECT."
-  (interactive (list (completing-read "Project: "
-                                      (hog-get-projects)
-                                      nil
-                                      t)))
-  (if (not (string-equal project ""))
-      (progn
-        (let ((command (format "cd %s && source %s && vivado %s &"
-                               (projectile-project-root)
-                               hog-vivado-path
-                               (hog-get-project-xml project)
-                               )))
-          (message (format "Opening Hog Project %s" project))
-          (async-shell-command command)))
-    (message "You must specify a valid project!")))
-
 ;;;###autoload (autoload 'hog-project-do! "hog-emacs")
 (defmacro hog-project-do! (name docstring body)
   "Macro to create an arbitrary Hog interactive command.
@@ -90,6 +72,19 @@ NAME is the function name, COMMAND is the command that should be executed"
 (hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -njobs %d" hog-number-of-jobs))
 ;;;###autoload (autoload 'hog-launch-impl "hog-emacs" "Launch Project Full Workflow" t)
 (hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -njobs %d" hog-number-of-jobs))
+
+;;;###autoload
+(hog-project-do!
+ hog-open-project
+ "Open the Hog PROJECT."
+ (progn
+   (let ((command (format "cd %s && source %s && vivado %s &"
+                          (projectile-project-root)
+                          hog-vivado-path
+                          (hog-get-project-xml project)
+                          )))
+     (message (format "Opening Hog Project %s" project))
+     (async-shell-command command))))
 
 (defun hog-run-command (command project &rest args)
   "Run a Hog COMMAND for a given PROJECT (and colorize it)."
@@ -139,8 +134,7 @@ NAME is the function name, COMMAND is the command that should be executed"
           (when (equal (xml-get-attribute attr 'Name) "Library")
             (let ((lib  (xml-get-attribute attr 'Val)))
               (setf lib-list (hog-append-to-library lib-list lib src-file)))))))
-    lib-list
-    ))
+    lib-list))
 
 (defun hog-parse-project-xml (project)
   ""
@@ -243,23 +237,16 @@ NAME is the function name, COMMAND is the command that should be executed"
       ;;(print (concat text (hog-vhdl-tool-lib-to-string library)))
       (setq text (concat text (hog-vhdl-tool-lib-to-string library)))
       )
-    text
-    ))
+    text))
 
 ;;;###autoload
-(defun hog-vhdl-tool-create-project-yaml (project)
-  "Create a VHDL-tool yaml file for a Hog PROJECT"
-  (interactive (list (completing-read "Project: "
-                                      (hog-get-projects)
-                                      nil
-                                      t)))
-  (if (not (string-equal project ""))
-      (progn
-        (let ((yaml ""))
-          (setq yaml (concat yaml (hog-vhdl-tool-parse-libs (hog-parse-project-xml project))))
-          (setq yaml (concat yaml (hog-vhdl-tool-walk-preferences hog-vhdl-tool-preferences)))
-          (shell-command (format "echo '%s' > %svhdltool-config.yaml" yaml (projectile-project-root)))))
-    (message "You must specify a valid project!")))
+(hog-project-do!
+ hog-vhdl-tool-create-project-yaml
+ "Create a VHDL-tool yaml file for a Hog PROJECT"
+   (let ((yaml ""))
+     (setq yaml (concat yaml (hog-vhdl-tool-parse-libs (hog-parse-project-xml project))))
+     (setq yaml (concat yaml (hog-vhdl-tool-walk-preferences hog-vhdl-tool-preferences)))
+     (shell-command (format "echo '%s' > %svhdltool-config.yaml" yaml (projectile-project-root)))))
 
 (defun hog-vhdl-ls-lib-to-string (library)
   ""
@@ -281,29 +268,20 @@ NAME is the function name, COMMAND is the command that should be executed"
     (dolist (library libraries)
       ;;(concat text (hog-vhdl-ls-lib-to-string library))
       ;;(print (concat text (hog-vhdl-ls-lib-to-string library)))
-      (setq text (concat text (hog-vhdl-ls-lib-to-string library)))
-      )
-    text
-    ))
+      (setq text (concat text (hog-vhdl-ls-lib-to-string library))))
+    text))
 
 ;;------------------------------------------------------------------------------
 ;; VHDL LS Project File Creation
 ;;------------------------------------------------------------------------------
 
 ;;;###autoload
-(defun hog-vhdl-ls-create-project-toml (project)
-  "Create a VHDL-tool yaml file for a Hog PROJECT"
-  (interactive (list (completing-read "Project: "
-                                      (hog-get-projects)
-                                      nil
-                                      t)))
-  (if (not (string-equal project ""))
-      (progn
-        (let ((yaml ""))
-          (setq yaml (concat yaml (hog-vhdl-ls-parse-libs (hog-parse-project-xml project))))
-          (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (projectile-project-root)))
-          ))
-    (message "You must specify a valid project!")))
+(hog-project-do!
+ hog-vhdl-ls-create-project-toml
+ "Create a VHDL-tool yaml file for a Hog PROJECT"
+   (let ((yaml ""))
+     (setq yaml (concat yaml (hog-vhdl-ls-parse-libs (hog-parse-project-xml project))))
+     (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (projectile-project-root)))))
 
 ;;------------------------------------------------------------------------------
 ;; GHDL-Ls Project File Creation
