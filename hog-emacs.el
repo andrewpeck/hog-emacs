@@ -325,12 +325,10 @@ NAME is the function name, COMMAND is the command that should be executed"
                     "-fexplicit"])))
 
 (defun ghdl-ls-format-file-list (file-list)
-  (list (cons
-         'files
-         (mapcar
-          (lambda (file-name)
-            (list `(file . ,file-name) '(language . "vhdl")))
-          file-list))))
+  (list (cons 'files
+              (mapcar
+               (lambda (file-name) (list `(file . ,file-name) '(language . "vhdl")))
+               file-list))))
 
 ;;;###autoload
 (defun hog-ghdl-ls-create-project-json (project)
