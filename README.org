@@ -1,0 +1,17 @@
+#+TITLE:   Hog Emacs
+#+DATE:    September 14, 2021
+#+STARTUP: inlineimages nofold
+
+A collection of functions for working with Hog ([[https://hog.readthedocs.io/][https://hog.readthedocs.io]]) projects from emacs.
+
+- ~hog-open-project~
+- ~hog-launch-impl~
+- ~hog-launch-synthesis~
+- ~hog-launch-workflow~
+- ~hog-open-project~
+
+It also includes facilities for creating configuration files from Hog projects for various HDL language servers:
+
+- ~hog-vhdl-ls-create-project-toml~
+- ~hog-ghdl-ls-create-project-json~
+- ~hog-vhdl-tool-create-project-yaml~
