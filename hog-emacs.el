@@ -47,7 +47,7 @@ NAME is the function name, COMMAND is the command that should be executed"
   `(defun ,name (project)
      ,docstring
      (interactive (list (completing-read "Project: " (hog-get-projects) nil t)))
-     (if (not (string-equal project ""))
+     (if (not (string-empty-p project))
          (eval ,body)
        (message "You must specify a valid project!"))))
 
@@ -60,7 +60,7 @@ NAME is the function name, COMMAND is the command that should be executed"
                                          (hog-get-projects)
                                          nil
                                          t)))
-     (if (not (string-equal project ""))
+     (if (not (string-empty-p project))
          (progn (hog-run-command ,command project))
        (message "You must specify a valid project!"))))
 
