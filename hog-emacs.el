@@ -215,17 +215,14 @@ NAME is the function name, COMMAND is the command that should be executed"
     text))
 
 (defun hog-vhdl-tool-lib-to-string (library)
-  ""
+  "Convert a VHDL Tool LIBRARY (library name + list of files) into a yaml string"
   (let ((lib-name (car library))
         (lib-files (car (cdr library)))
-        (pad "    ")
-        (str "")
-        )
-    (setq str (concat str (format "%s - name: %s\n" pad lib-name)))
-    (setq str (concat str (format "%s   paths:\n" pad)))
-    (dolist (file lib-files)
-      (setq str (concat str (format "%s%s - %s\n" pad pad file))))
-    str))
+        (pad "    "))
+    (concat
+     (format "%s - name: %s\n" pad lib-name)
+     (format "%s   paths:\n" pad)
+     (string-join (mapcar (lambda (file) (format "%s%s - %s\n" pad pad file)) lib-files)))))
 
 (defun hog-vhdl-tool-parse-libs (libraries)
   ""
@@ -233,32 +230,28 @@ NAME is the function name, COMMAND is the command that should be executed"
     (setq libraries (append libraries (list hog-ieee-library)))
     (setq libraries (append libraries (list hog-unisim-library)))
     (dolist (library libraries)
-      ;;(concat text (hog-vhdl-tool-lib-to-string library))
-      ;;(print (concat text (hog-vhdl-tool-lib-to-string library)))
-      (setq text (concat text (hog-vhdl-tool-lib-to-string library)))
-      )
+      (setq text (concat text (hog-vhdl-tool-lib-to-string library))))
     text))
 
 ;;;###autoload
 (hog-project-do!
  hog-vhdl-tool-create-project-yaml
  "Create a VHDL-tool yaml file for a Hog PROJECT"
- (let ((yaml ""))
-   (setq yaml (concat yaml (hog-vhdl-tool-parse-libs (hog-parse-project-xml project))))
-   (setq yaml (concat yaml (hog-vhdl-tool-walk-preferences hog-vhdl-tool-preferences)))
+ (let ((yaml
+        (concat (hog-vhdl-tool-parse-libs (hog-parse-project-xml project))
+                (hog-vhdl-tool-walk-preferences hog-vhdl-tool-preferences))))
    (shell-command (format "echo '%s' > %svhdltool-config.yaml" yaml (projectile-project-root)))))
 
 (defun hog-vhdl-ls-lib-to-string (library)
   ""
   (let ((lib-name (car library))
         (lib-files (car (cdr library)))
-        (pad "  ")
-        (str ""))
-    (setq str (concat str (format "%s.files = [\n" lib-name)))
-    (dolist (file lib-files)
-      (setq str (concat str pad "\"" file "\",\n" )))
-    (setq str (concat str "]\n"))
-    str))
+        (pad "  "))
+    (concat
+     (format "%s.files = [\n" lib-name)
+     (string-join (mapcar (lambda (file)
+                            (concat str pad "\"" file "\",\n" )) lib-files))
+     "]\n")))
 
 (defun hog-vhdl-ls-parse-libs (libraries)
   ""
@@ -279,8 +272,7 @@ NAME is the function name, COMMAND is the command that should be executed"
 (hog-project-do!
  hog-vhdl-ls-create-project-toml
  "Create a VHDL-tool yaml file for a Hog PROJECT"
- (let ((yaml ""))
-   (setq yaml (concat yaml (hog-vhdl-ls-parse-libs (hog-parse-project-xml project))))
+ (let ((yaml (hog-vhdl-ls-parse-libs (hog-parse-project-xml project))))
    (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (projectile-project-root)))))
 
 ;;------------------------------------------------------------------------------
