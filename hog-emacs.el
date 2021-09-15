@@ -93,14 +93,15 @@ NAME is the function name, COMMAND is the command that should be executed"
          (buf (format "*%s*" name)))
 
     ;; construct the output command
-    (let ((cmd-str (format "cd %s && source %s && %s%s %s %s%s | tee hog.log | ccze -A"
-                           (projectile-project-root)
-                           hog-vivado-path
-                           (projectile-project-root)
-                           command
-                           project
-                           (if args " " "")
-                           (string-join args " "))))
+    (let ((cmd-str (format "cd %s && source %s && %s | tee hog.log %s"
+                           (projectile-project-root) ;; cd %s
+                           hog-vivado-path ;; source vivado
+                           (concat
+                            ;; path/Hog/Launch{X}.sh project <args>
+                            (projectile-project-root) command " " project " " (string-join args " "))
+                           ;; optional ccze
+                           (ccze-pipe (if (executable-find "ccze") " | ccze -A" ""))
+                           )))
       ;; ... and run it
       (compile cmd-str buf))
 
