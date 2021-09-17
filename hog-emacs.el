@@ -21,6 +21,8 @@
 
 ;;; Code:
 
+(require 'xml)
+
 (defvar hog-vivado-path "~/Xilinx/Vivado/2019.2/settings64.sh")
 (defvar hog-number-of-jobs 4)
 
@@ -37,8 +39,12 @@
 
 (defun hog-get-project-xml (project)
   "Return the XML (XPR) file for a given Hog PROJECT."
-  ;; TODO: add ppr handling
-  (format "%sProjects/%s/%s.xpr" (projectile-project-root) project project))
+  (let* ((base  (format "%sProjects/%s/%s" (projectile-project-root) project project))
+         (xpr (format "%s.xpr" base))
+         (ppr (format "%s.ppr" base)))
+    (cond
+     ((file-exists-p xpr) xpr)
+     ((file-exists-p ppr) ppr))))
 
 ;;;###autoload (autoload 'hog-project-do! "hog-emacs")
 (defmacro hog-project-do! (name docstring body)
@@ -118,7 +124,7 @@ NAME is the function name, COMMAND is the command that should be executed"
     (insert-file-contents file-path)
     (split-string (buffer-string) "\n" t)))
 
-(defun hog-parse-vivado-xml (project-file)
+(defun hog-parse-vivado-xpr (project-file)
   "Parse a Vivado XPR PROJECT-FILE into a list of libraries and their sources."
   ;; https://stackoverflow.com/questions/43806637/parsing-xml-file-with-elisp
   (require 'xml)
@@ -137,9 +143,19 @@ NAME is the function name, COMMAND is the command that should be executed"
               (setf lib-list (hog-append-to-library lib-list lib src-file)))))))
     lib-list))
 
+(defun hog-parse-ise-ppr (project-file)
+  "Parse a Vivado PPR (ISE) PROJECT-FILE into a list of libraries and their sources."
+  ;; FIXME need to parse the dang thing
+  )
+
 (defun hog-parse-project-xml (project)
-  ""
-  (hog-parse-vivado-xml (hog-get-project-xml project)))
+  "Parse a PROJECT xml file into a list"
+  (let* ((xml (hog-get-project-xml project))
+         (extension (file-name-extension xml)))
+    (cond ((string-equal extension "xpr")
+           (hog-parse-vivado-xpr xml))
+          ((string-equal extension "ppr")
+           (hog-parse-ise-ppr xml)))))
 
 (defvar hog-ieee-library
   '("ieee" (
