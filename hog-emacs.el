@@ -335,7 +335,7 @@ NAME is the function name, COMMAND is the command that should be executed"
  "Create GHDL-LS Json File"
  (if (not (string-equal project ""))
      (progn (let ((output-file (format "%shdl-prj.json" (projectile-project-root)))
-                  (files (hog-parse-project-xml project)))
+                  (files (apply #'append (mapcar #'cadr (hog-parse-project-xml project)))))
               (with-temp-file output-file
                 (progn (insert (json-encode (append (list ghdl-ls-options) (ghdl-ls-format-file-list files))))
                        (json-pretty-print-buffer)))))
