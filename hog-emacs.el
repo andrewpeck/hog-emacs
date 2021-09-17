@@ -268,7 +268,7 @@ NAME is the function name, COMMAND is the command that should be executed"
     (concat
      (format "%s.files = [\n" lib-name)
      (string-join (mapcar (lambda (file)
-                            (concat str pad "\"" file "\",\n" )) lib-files))
+                            (concat pad "\"" file "\",\n" )) lib-files))
      "]\n")))
 
 (defun hog-vhdl-ls-parse-libs (libraries)
