@@ -34,8 +34,11 @@
                                                   (expand-file-name (concat file "/..")))))
           ;; list all directories in the Top/ folder
           (if (file-directory-p (format "%sTop" (projectile-project-root)))
-              (sort (split-string (shell-command-to-string
-                                   (format "find %sTop -name list -type d" (projectile-project-root)))) #'string<))))
+              (sort (split-string
+                     (shell-command-to-string
+                      (format
+                       "find %sTop -name list -type d -or -name hog.conf -type f -or -name *.src -type f"
+                       (projectile-project-root)))) #'string<))))
 
 (defun hog-get-project-xml (project)
   "Return the XML (XPR) file for a given Hog PROJECT."
@@ -126,8 +129,6 @@ NAME is the function name, COMMAND is the command that should be executed"
 
 (defun hog-parse-vivado-xpr (project-file)
   "Parse a Vivado XPR PROJECT-FILE into a list of libraries and their sources."
-  ;; https://stackoverflow.com/questions/43806637/parsing-xml-file-with-elisp
-  (require 'xml)
   (let ((lib-list (list)))
     (dolist (file-node
              ;; get a list of all the Project -> FileSets -> FileSet --> File nodes
