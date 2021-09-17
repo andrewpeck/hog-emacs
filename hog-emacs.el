@@ -348,8 +348,9 @@ NAME is the function name, COMMAND is the command that should be executed"
         (func output)
         (when (funcall func "test")
           (rename-file output (format "test/%s" output) t)
-          (if (shell-command-to-string (format "git diff test/%s" output))
-              (error (format "Diff in %s" output))))))
+          (let ((diff (shell-command-to-string (format "git diff test/%s" output))))
+            (if (not (string-empty-p diff))
+                (error (format "Diff in %s:\n%s" output diff)))))))
 
     (check-lsp-output-file 'hog-ghdl-ls-create-project-json "hdl-prj.json")
     (check-lsp-output-file 'hog-vhdl-ls-create-project-toml "vhdl_ls.toml")
