@@ -109,7 +109,7 @@ NAME is the function name, COMMAND is the command that should be executed"
                             ;; path/Hog/Launch{X}.sh project <args>
                             (projectile-project-root) command " " project " " (string-join args " "))
                            ;; optional ccze
-                           (ccze-pipe (if (executable-find "ccze") " | ccze -A" ""))
+                           (if (executable-find "ccze") " | ccze -A" "")
                            )))
       ;; ... and run it
       (compile cmd-str buf))
