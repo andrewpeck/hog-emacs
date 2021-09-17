@@ -341,5 +341,19 @@ NAME is the function name, COMMAND is the command that should be executed"
                        (json-pretty-print-buffer)))))
    (message "You must specify a valid project!")))
 
+(eval-when-compile
+  (require 'json)
+  (cl-flet
+      ((check-lsp-output-file
+        (func output)
+        (when (funcall func "test")
+          (rename-file output (format "test/%s" output) t)
+          (if (shell-command-to-string (format "git diff test/%s" output))
+              (error (format "Diff in %s" output))))))
+
+    (check-lsp-output-file 'hog-ghdl-ls-create-project-json "hdl-prj.json")
+    (check-lsp-output-file 'hog-vhdl-ls-create-project-toml "vhdl_ls.toml")
+    (check-lsp-output-file 'hog-vhdl-tool-create-project-yaml "vhdltool-config.yaml")))
+
 (provide 'hog-emacs)
 ;;; hog-emacs.el ends here

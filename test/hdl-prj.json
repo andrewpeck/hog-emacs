@@ -1,0 +1,454 @@
+{
+  "options": {
+    "ghdl_analysis": [
+      "--workdir=work",
+      "--ieee=synopsys",
+      "-fexplicit",
+      "--warn-library",
+      "--warn-default-binding",
+      "--warn-binding",
+      "--warn-reserved",
+      "--warn-nested-comment",
+      "--warn-parenthesis",
+      "--warn-vital-generic",
+      "--warn-delayed-checks",
+      "--warn-body",
+      "--warn-specs",
+      "--warn-runtime-error",
+      "--warn-shared",
+      "--warn-hide",
+      "--warn-unused",
+      "--warn-others",
+      "--warn-pure",
+      "--warn-static",
+      "--std=08",
+      "-fexplicit"
+    ]
+  },
+  "files": [
+    {
+      "file": "registers/FW_INFO_PKG.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "registers/FW_INFO_map.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "registers/MGT_PKG.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "registers/MGT_map.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "registers/READOUT_BOARD_PKG.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "registers/READOUT_BOARD_map.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/utils/clock_strobe.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/readout_board/components_pkg.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/readout_board/types_pkg.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/readout_board/control.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/utils/counter.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/wrappers/lpgbt_pkg.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/utils/prbs_any.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/gbt_ic/gbt_ic_rx.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/gbt_ic/sc_wrapper.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/wrappers/lpgbt_link_wrapper.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/utils/frame_aligner.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/utils/fifo_sync.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/readout_board/wishbone_fifo_reader.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/readout_board/pattern_checker.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/readout_board/readout_board.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/mgt/xlx_ku_mgt_ip_reset_synchronizer.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/mgt/xlx_ku_mgt_10g24.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/utils/fifo_async.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/utils/frequency_counter.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/readout_board/etl_test_fw.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_core/firmware/hdl/ipbus_package.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "registers/ipbus_decode_etl_test_fw.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_core/firmware/hdl/ipbus_arb.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_core/firmware/hdl/ipbus_fabric_sel.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_util/firmware/hdl/ipbus_clock_div.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/eth_clocks.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_core/firmware/hdl/ipbus_trans_decl.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/eth_sgmii.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_ipaddr_block.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_rarp_block.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_build_arp.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_build_payload.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_build_ping.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_build_resend.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_build_status.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_status_buffer.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_byte_sum.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_do_rx_reset.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_packet_parser.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_rxram_mux.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_dualportram.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_buffer_selector.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_rxram_shim.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_dualportram_rx.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_dualportram_tx.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_rxtransactor_if_simple.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_tx_mux.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_txtransactor_if_simple.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_clock_crossing_if.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_udp/firmware/hdl/udp_if_flat.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_core/firmware/hdl/trans_arb.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_core/firmware/hdl/transactor_if.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_core/firmware/hdl/transactor_sm.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_core/firmware/hdl/transactor_cfg.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_core/firmware/hdl/transactor.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_util/firmware/hdl/masters/ipbus_ctrl.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/eth_infra.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_axi/firmware/hdl/ipbus_axi_decl.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_pcie/firmware/hdl/pcie_int_gen_msix.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_pcie/firmware/hdl/pcie_xdma_axi_us_if.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_axi/firmware/hdl/ipbus_transport_multibuffer_rx_dpram.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_axi/firmware/hdl/ipbus_transport_multibuffer_tx_dpram.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_axi/firmware/hdl/ipbus_transport_multibuffer_cdc.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_axi/firmware/hdl/ipbus_transport_multibuffer_if.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_axi/firmware/hdl/ipbus_transport_ram_if.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_transport_axi/firmware/hdl/ipbus_transport_axi_if.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "src/pcie_infra.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_slaves/firmware/hdl/ipbus_reg_types.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "ipbus-firmware/components/ipbus_util/firmware/hdl/ipbus_decode_ipbus_example.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/lpgbtfpga_package.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/uplink/descrambler_51bitOrder49.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/uplink/descrambler_53bitOrder49.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/uplink/descrambler_58bitOrder58.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/uplink/descrambler_60bitOrder58.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/lpgbtfpga_downlink.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/lpgbtfpga_uplink.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/uplink/fec_rsDecoderN15K13.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/uplink/fec_rsDecoderN31K29.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/uplink/lpgbtfpga_decoder.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/uplink/lpgbtfpga_deinterleaver.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/uplink/lpgbtfpga_descrambler.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/downlink/lpgbtfpga_encoder.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/uplink/lpgbtfpga_framealigner.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/downlink/lpgbtfpga_interleaver.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/uplink/lpgbtfpga_rxgearbox.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/downlink/lpgbtfpga_scrambler.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/downlink/lpgbtfpga_txgearbox.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "lpgbt-fpga/downlink/rs_encoder_N7K5.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/SCA/sca_pkg.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/gbtsc_top.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/IC/ic_deserializer.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/IC/ic_rx.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/IC/ic_rx_fifo.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/IC/ic_top.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/IC/ic_tx.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/SCA/sca_deserializer.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/SCA/sca_rx.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/SCA/sca_rx_fifo.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/SCA/sca_top.vhd",
+      "language": "vhdl"
+    },
+    {
+      "file": "gbt-sc/GBT-SC/SCA/sca_tx.vhd",
+      "language": "vhdl"
+    }
+  ]
+}
