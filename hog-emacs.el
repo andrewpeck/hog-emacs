@@ -23,7 +23,7 @@
 
 (require 'xml)
 
-(defvar hog-vivado-path "~/Xilinx/Vivado/2019.2/settings64.sh")
+(defvar hog-vivado-path "~/Xilinx/Vivado/2020.2/settings64.sh")
 (defvar hog-number-of-jobs 4)
 
 (defun hog-get-projects ()
