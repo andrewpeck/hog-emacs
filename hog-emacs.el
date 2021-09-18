@@ -188,77 +188,59 @@ NAME is the function name, COMMAND is the command that should be executed"
 
 (defvar hog-vhdl-tool-preferences
   '(
-    ("Preferences" .
-     (("TypeCheck"            . "True")
-      ("MultiLineErrors"      . "True")
-      ("CheckOnChange"        . "True")
-      ("Lint"                 . "True")
-      ("FirstSyntaxErrorOnly" . "True")))
+    ("TypeCheck"            . t)
+    ("MultiLineErrors"      . t)
+    ("CheckOnChange"        . t)
+    ("Lint"                 . t)
+    ("FirstSyntaxErrorOnly" . t)))
 
-    ("Lint" .
-     (("Threshold" ."Warning")
-      ("DeclaredNotAssigned" . (
-                                ("enabled"  . "True")
-                                ("severity" . "Warning")))
-      ("DeclaredNotRead"           . "True")
-      ("ReadNotAssigned"           . "True")
-      ("SensitivityListCheck"      . "True")
-      ("ExtraSensitivityListCheck" . "True")
-      ("DuplicateSensitivity"      . "True")
-      ("LatchCheck"                . "True")
-      ("VariableNotRead"           . "True")
-      ("PortNotRead"               . "True")
-      ("PortNotWritten"            . "True")
-      ("NoPrimaryUnit"             . "True")
-      ("DuplicateLibraryImport"    . "True")
-      ("DuplicatePackageUsage"     . "True")
-      ("DeprecatedPackages"        . "True")
-      ("ImplicitLibraries"         . "True")
-      ("DisconnectedPorts"         . "True")
-      ("IntNoRange"                . "True")
-      ))))
-
-(defun hog-vhdl-tool-walk-preferences (prefs)
-  ""
-  (let ((text "") (pad "    "))
-    (dolist (category prefs)
-      (setq text (concat text (format "%s:\n" (car category))))
-      (dolist (pref (cdr category))
-        (if (listp (cdr pref))
-            (progn
-              (setq text (concat text (format "%s%s:\n" pad (car pref))))
-              (dolist (subitem (cdr pref))
-                (setq text (concat text (format "%s%s%s: %s\n" pad pad (car subitem) (cdr subitem))))))
-          (setq text (concat text (format "%s%s: %s\n" pad (car pref) (cdr pref)))))))
-    text))
-
-(defun hog-vhdl-tool-lib-to-string (library)
-  "Convert a VHDL Tool LIBRARY (library name + list of files) into a yaml string"
-  (let ((lib-name (car library))
-        (lib-files (car (cdr library)))
-        (pad "    "))
-    (concat
-     (format "%s - name: %s\n" pad lib-name)
-     (format "%s   paths:\n" pad)
-     (string-join (mapcar (lambda (file) (format "%s%s - %s\n" pad pad file)) lib-files)))))
-
-(defun hog-vhdl-tool-parse-libs (libraries)
-  ""
-  (let ((text "Libraries:\n"))
-    (setq libraries (append libraries (list hog-ieee-library)))
-    (setq libraries (append libraries (list hog-unisim-library)))
-    (dolist (library libraries)
-      (setq text (concat text (hog-vhdl-tool-lib-to-string library))))
-    text))
+(defvar hog-vhdl-tool-lint-settings
+  '(("Threshold" ."Warning")
+    ("DeclaredNotAssigned" .
+     (("enabled"  . t)
+      ("severity" . "Warning")))
+    ("DeclaredNotRead"           . t)
+    ("ReadNotAssigned"           . t)
+    ("SensitivityListCheck"      . t)
+    ("ExtraSensitivityListCheck" . t)
+    ("DuplicateSensitivity"      . t)
+    ("LatchCheck"                . t)
+    ("VariableNotRead"           . t)
+    ("PortNotRead"               . t)
+    ("PortNotWritten"            . t)
+    ("NoPrimaryUnit"             . t)
+    ("DuplicateLibraryImport"    . t)
+    ("DuplicatePackageUsage"     . t)
+    ("DeprecatedPackages"        . t)
+    ("ImplicitLibraries"         . t)
+    ("DisconnectedPorts"         . t)
+    ("IntNoRange"                . t)))
 
 ;;;###autoload
 (hog-project-do!
  hog-vhdl-tool-create-project-yaml
  "Create a VHDL-tool yaml file for a Hog PROJECT"
- (let ((yaml
-        (concat (hog-vhdl-tool-parse-libs (hog-parse-project-xml project))
-                (hog-vhdl-tool-walk-preferences hog-vhdl-tool-preferences))))
-   (shell-command (format "echo '%s' > %svhdltool-config.yaml" yaml (projectile-project-root)))))
+ (with-temp-file (format "%s/vhdltool-config.yaml" (projectile-project-root))
+   (progn
+     (insert
+      (json-encode
+       (list (cons 'Libraries
+                   (mapcar (lambda (lib)
+                             (list (cons 'name (car lib))
+                                   (cons 'paths (apply #'vector (cadr lib)))))
+                           (append
+                            (hog-parse-project-xml project)
+                            (list hog-ieee-library)
+                            (list hog-unisim-library))))
+             (cons 'Preferences
+                   hog-vhdl-tool-preferences)
+             (cons 'Lint
+                   hog-vhdl-tool-lint-settings)))))
+   (json-pretty-print-buffer)))
+
+;;------------------------------------------------------------------------------
+;; VHDL LS Project File Creation
+;;------------------------------------------------------------------------------
 
 (defun hog-vhdl-ls-lib-to-string (library)
   ""
@@ -281,10 +263,6 @@ NAME is the function name, COMMAND is the command that should be executed"
       ;;(print (concat text (hog-vhdl-ls-lib-to-string library)))
       (setq text (concat text (hog-vhdl-ls-lib-to-string library))))
     text))
-
-;;------------------------------------------------------------------------------
-;; VHDL LS Project File Creation
-;;------------------------------------------------------------------------------
 
 ;;;###autoload
 (hog-project-do!
