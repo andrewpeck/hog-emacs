@@ -118,7 +118,7 @@ NAME is the function name, COMMAND is the command that should be executed"
     (with-current-buffer buf (evil-normal-state) (view-mode))))
 
 ;;--------------------------------------------------------------------------------
-;; Intelligence for reading source files...
+;; Intelligence for reading project xpr/ppr files
 ;;--------------------------------------------------------------------------------
 
 (defun hog-read-lines-from-file (file-path)
@@ -158,6 +158,16 @@ NAME is the function name, COMMAND is the command that should be executed"
           ((string-equal extension "ppr")
            (hog-parse-ise-ppr xml)))))
 
+(defun hog-append-to-library (src-list lib-name file-name)
+  ""
+  (let ((lib (assoc lib-name src-list)))
+    (when (eq lib nil)
+      (setf src-list (append src-list (list (list lib-name (list)))))
+      ;;(print src-list)
+      (setq lib (assoc lib-name src-list)))
+    (setf (cadr lib) (append (cadr lib) (list file-name) )))
+  src-list)
+
 (defvar hog-ieee-library
   '("ieee" (
             "/usr/local/lib/ghdl/src/synopsys/*.vhdl"
@@ -172,18 +182,8 @@ NAME is the function name, COMMAND is the command that should be executed"
               ,(format "%sdata/vhdl/src/unisims/unisim_VCOMP.vhd"
                        (file-name-directory hog-vivado-path)))))
 
-(defun hog-append-to-library (src-list lib-name file-name)
-  ""
-  (let ((lib (assoc lib-name src-list)))
-    (when (eq lib nil)
-      (setf src-list (append src-list (list (list lib-name (list)))))
-      ;;(print src-list)
-      (setq lib (assoc lib-name src-list)))
-    (setf (cadr lib) (append (cadr lib) (list file-name) )))
-  src-list)
-
 ;;------------------------------------------------------------------------------
-;; VHDL Tool Config Generation
+;; VHDL Tool YAML Config Generation
 ;;------------------------------------------------------------------------------
 
 (defvar hog-vhdl-tool-preferences
@@ -239,7 +239,7 @@ NAME is the function name, COMMAND is the command that should be executed"
    (json-pretty-print-buffer)))
 
 ;;------------------------------------------------------------------------------
-;; VHDL LS Project File Creation
+;; VHDL LS TOML Project File Creation
 ;;------------------------------------------------------------------------------
 
 (defun hog-vhdl-ls-lib-to-string (library)
@@ -272,7 +272,7 @@ NAME is the function name, COMMAND is the command that should be executed"
    (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (projectile-project-root)))))
 
 ;;------------------------------------------------------------------------------
-;; GHDL-Ls Project File Creation
+;; GHDL-LS JSON Project File Creation
 ;;------------------------------------------------------------------------------
 
 (defvar ghdl-ls-options
@@ -318,6 +318,10 @@ NAME is the function name, COMMAND is the command that should be executed"
                 (progn (insert (json-encode (append (list ghdl-ls-options) (ghdl-ls-format-file-list files))))
                        (json-pretty-print-buffer)))))
    (message "You must specify a valid project!")))
+
+;;------------------------------------------------------------------------------
+;; Testing
+;;------------------------------------------------------------------------------
 
 (eval-when-compile
   (require 'json)
