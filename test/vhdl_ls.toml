@@ -124,6 +124,6 @@ ieee.files = [
   "/usr/lib/ghdl/src/ieee2008/*.vhdl",
 ]
 unisim.files = [
-  "~/Xilinx/Vivado/2019.2/data/vhdl/src/unisims/unisim_VCOMP.vhd",
+  "~/Xilinx/Vivado/2020.2/data/vhdl/src/unisims/unisim_VCOMP.vhd",
 ]
 
