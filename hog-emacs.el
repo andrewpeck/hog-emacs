@@ -61,10 +61,11 @@ NAME is the function name, COMMAND is the command that should be executed"
        (message "You must specify a valid project!"))))
 
 ;;;###autoload (autoload 'hog-create-command! "hog-emacs")
-(defmacro hog-create-command! (name command)
+(defmacro hog-create-command! (name command docstring)
   "Macro to create a Hog interactive command.
 NAME is the function name, COMMAND is the command that should be executed"
   `(defun ,name (project)
+     ,docstring
      (interactive (list (completing-read "Project: "
                                          (hog-get-projects)
                                          nil
@@ -73,14 +74,10 @@ NAME is the function name, COMMAND is the command that should be executed"
          (progn (hog-run-command ,command project))
        (message "You must specify a valid project!"))))
 
-;;;###autoload (autoload 'hog-create-project "hog-emacs" "Create a Hog project" t)
-(hog-create-command! hog-create-project "Hog/CreateProject.sh")
-;;;###autoload (autoload 'hog-launch-synthesis "hog-emacs" "Launch Project Synthesis" t)
-(hog-create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -njobs %d" hog-number-of-jobs))
-;;;###autoload (autoload 'hog-launch-workflow "hog-emacs" "Launch Project Implementation" t)
-(hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -njobs %d" hog-number-of-jobs))
-;;;###autoload (autoload 'hog-launch-impl "hog-emacs" "Launch Project Full Workflow" t)
-(hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -njobs %d" hog-number-of-jobs))
+(hog-create-command! hog-create-project "Hog/CreateProject.sh" "Create a Hog project")
+(hog-create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -njobs %d" hog-number-of-jobs) "Launch Project Synthesis")
+(hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -njobs %d" hog-number-of-jobs) "Launch Project Implementation")
+(hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -njobs %d" hog-number-of-jobs) "Launch Project Full Workflow")
 
 ;;;###autoload
 (hog-project-do!
