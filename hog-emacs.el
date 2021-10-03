@@ -22,6 +22,7 @@
 ;;; Code:
 
 (require 'xml)
+(require 'json)
 
 (defvar hog-vivado-path "~/Xilinx/Vivado/2020.2/settings64.sh")
 (defvar hog-number-of-jobs 4)
@@ -321,7 +322,6 @@ NAME is the function name, COMMAND is the command that should be executed"
 ;;------------------------------------------------------------------------------
 
 (eval-when-compile
-  (require 'json)
   (cl-flet
       ((check-lsp-output-file
         (func output)
