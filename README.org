@@ -15,3 +15,10 @@ It also includes facilities for creating configuration files from Hog projects f
 - ~hog-vhdl-ls-create-project-toml~
 - ~hog-ghdl-ls-create-project-json~
 - ~hog-vhdl-tool-create-project-yaml~
+
+You should customize these variables to your liking:
+#+begin_src  elisp
+(setq
+ hog-vivado-path "~/Xilinx/Vivado/2020.2/settings64.sh"
+ hog-number-of-jobs 4)
+#+end_src
