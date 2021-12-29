@@ -23,6 +23,10 @@
 
 (require 'xml)
 
+(add-to-list 'auto-mode-alist '("\\.src\\'" . tcl-mode))  ;; tcl mode for hog files
+(add-to-list 'auto-mode-alist '("\\.con\\'" . tcl-mode))  ;; tcl mode for hog files
+(add-to-list 'auto-mode-alist '("\\.lst\\'" . tcl-mode))  ;; tcl mode for hog files
+
 (defvar hog-vivado-path "~/Xilinx/Vivado/2020.2/settings64.sh")
 (defvar hog-number-of-jobs 4)
 
