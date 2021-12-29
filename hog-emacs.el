@@ -54,7 +54,6 @@
      ((file-exists-p xpr) xpr)
      ((file-exists-p ppr) ppr))))
 
-;;;###autoload (autoload 'hog-project-do! "hog-emacs")
 (defmacro hog-project-do! (name docstring body)
   "Macro to create an arbitrary Hog interactive command.
 NAME is the function name, COMMAND is the command that should be executed"
@@ -84,7 +83,6 @@ NAME is the function name, COMMAND is the command that should be executed"
 (hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -njobs %d" hog-number-of-jobs) "Launch Project Implementation")
 (hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -njobs %d" hog-number-of-jobs) "Launch Project Full Workflow")
 
-;;;###autoload
 (hog-project-do!
  hog-open-project
  "Open the Hog PROJECT."
@@ -218,7 +216,6 @@ NAME is the function name, COMMAND is the command that should be executed"
     ("DisconnectedPorts"         . t)
     ("IntNoRange"                . t)))
 
-;;;###autoload
 (hog-project-do!
  hog-vhdl-tool-create-project-yaml
  "Create a VHDL-tool yaml file for a Hog PROJECT"
@@ -266,7 +263,6 @@ NAME is the function name, COMMAND is the command that should be executed"
       (setq text (concat text (hog-vhdl-ls-lib-to-string library))))
     text))
 
-;;;###autoload
 (hog-project-do!
  hog-vhdl-ls-create-project-toml
  "Create a VHDL-tool yaml file for a Hog PROJECT"
@@ -309,7 +305,6 @@ NAME is the function name, COMMAND is the command that should be executed"
                (lambda (file-name) (list `(file . ,file-name) '(language . "vhdl")))
                file-list))))
 
-;;;###autoload
 (hog-project-do!
  hog-ghdl-ls-create-project-json
  "Create GHDL-LS Json File"
@@ -335,9 +330,13 @@ NAME is the function name, COMMAND is the command that should be executed"
             (if (not (string-empty-p diff))
                 (error (format "Diff in %s:\n%s" output diff)))))))
 
-    (check-lsp-output-file 'hog-ghdl-ls-create-project-json "hdl-prj.json")
-    (check-lsp-output-file 'hog-vhdl-ls-create-project-toml "vhdl_ls.toml")
-    (check-lsp-output-file 'hog-vhdl-tool-create-project-yaml "vhdltool-config.yaml")))
+    ;; (let ((dir (file-name-directory load-file-name)))
+    ;;   (cd dir)
+    ;;   (check-lsp-output-file 'hog-ghdl-ls-create-project-json "hdl-prj.json")
+    ;;   (check-lsp-output-file 'hog-vhdl-ls-create-project-toml "vhdl_ls.toml")
+    ;;   (check-lsp-output-file 'hog-vhdl-tool-create-project-yaml "vhdltool-config.yaml")
+    ;;   )))
+))
 
 (provide 'hog-emacs)
 ;;; hog-emacs.el ends here
