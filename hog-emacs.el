@@ -23,6 +23,7 @@
 
 (require 'xml)
 (require 'json)
+(require 'projectile)
 
 (add-to-list 'auto-mode-alist '("\\.src\\'" . tcl-mode))  ;; tcl mode for hog files
 (add-to-list 'auto-mode-alist '("\\.con\\'" . tcl-mode))  ;; tcl mode for hog files
@@ -116,6 +117,26 @@ NAME is the function name, COMMAND is the command that should be executed"
 
     ;; change the output buffer to a read-only, evil normal state buffer
     (with-current-buffer buf (evil-normal-state) (view-mode))))
+
+(defun hog-follow-link-at-point ()
+  (interactive)
+  (save-excursion
+    ;; this regex stinks
+    (let ((regex-hog-src-link
+           (rx (seq
+                (group (zero-or-more "#"))
+                (group (zero-or-more (syntax whitespace)))
+                (group (one-or-more nonl))
+                (group (zero-or-more (syntax whitespace)))
+                (group (zero-or-more nonl))))))
+      (let
+          ((filename (progn
+                       (thing-at-point-looking-at regex-hog-src-link)
+                       (match-string-no-properties 3))))
+        ;;  probably shouldn't open if its a normal link, use link-hint-open-link
+        ;;  else
+        (find-file
+         (concat (projectile-project-root) filename))))))
 
 ;;--------------------------------------------------------------------------------
 ;; Intelligence for reading project xpr/ppr files
@@ -337,7 +358,7 @@ NAME is the function name, COMMAND is the command that should be executed"
     ;;   (check-lsp-output-file 'hog-vhdl-ls-create-project-toml "vhdl_ls.toml")
     ;;   (check-lsp-output-file 'hog-vhdl-tool-create-project-yaml "vhdltool-config.yaml")
     ;;   )))
-))
+    ))
 
 (provide 'hog-emacs)
 ;;; hog-emacs.el ends here
