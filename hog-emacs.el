@@ -31,7 +31,7 @@
 (defvar hog-vivado-path "~/Xilinx/Vivado/2020.2/settings64.sh")
 (defvar hog-number-of-jobs 4)
 
-(defun hog-get-projects ()
+(defun hog--get-projects ()
   "Get a list of available Hog projects."
   ;; convert the full directory into the path, e.g.
   ;; /home/topham/project/Top/myproject --> myproject
@@ -45,7 +45,7 @@
                        "find %sTop -name list -type d -or -name hog.conf -type f -or -name *.src -type f"
                        (projectile-project-root)))) #'string<))))
 
-(defun hog-get-project-xml (project)
+(defun hog--get-project-xml (project)
   "Return the XML (XPR) file for a given Hog PROJECT."
   (let* ((base  (format "%sProjects/%s/%s" (projectile-project-root) project project))
          (xpr (format "%s.xpr" base))
@@ -54,48 +54,48 @@
      ((file-exists-p xpr) xpr)
      ((file-exists-p ppr) ppr))))
 
-(defmacro hog-project-do! (name docstring body)
+(defmacro hog--project-do! (name docstring body)
   "Macro to create an arbitrary Hog interactive command.
 NAME is the function name, COMMAND is the command that should be executed"
   `(defun ,name (project)
      ,docstring
-     (interactive (list (completing-read "Project: " (hog-get-projects) nil t)))
+     (interactive (list (completing-read "Project: " (hog--get-projects) nil t)))
      (if (not (string-empty-p project))
          (eval ,body)
        (message "You must specify a valid project!"))))
 
-;;;###autoload (autoload 'hog-create-command! "hog-emacs")
-(defmacro hog-create-command! (name command docstring)
+;;;###autoload (autoload 'hog--create-command! "hog-emacs")
+(defmacro hog--create-command! (name command docstring)
   "Macro to create a Hog interactive command.
 NAME is the function name, COMMAND is the command that should be executed"
   `(defun ,name (project)
      ,docstring
      (interactive (list (completing-read "Project: "
-                                         (hog-get-projects)
+                                         (hog--get-projects)
                                          nil
                                          t)))
      (if (not (string-empty-p project))
-         (progn (hog-run-command ,command project))
+         (progn (hog--run-command ,command project))
        (message "You must specify a valid project!"))))
 
-(hog-create-command! hog-create-project "Hog/CreateProject.sh" "Create a Hog project")
-(hog-create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -njobs %d" hog-number-of-jobs) "Launch Project Synthesis")
-(hog-create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -njobs %d" hog-number-of-jobs) "Launch Project Implementation")
-(hog-create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -njobs %d" hog-number-of-jobs) "Launch Project Full Workflow")
+(hog--create-command! hog-create-project "Hog/CreateProject.sh" "Create a Hog project")
+(hog--create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -njobs %d" hog-number-of-jobs) "Launch Project Synthesis")
+(hog--create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -njobs %d" hog-number-of-jobs) "Launch Project Implementation")
+(hog--create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -njobs %d" hog-number-of-jobs) "Launch Project Full Workflow")
 
-(hog-project-do!
+(hog--project-do!
  hog-open-project
  "Open the Hog PROJECT."
  (progn
    (let ((command (format "cd %s && source %s && vivado %s &"
                           (projectile-project-root)
                           hog-vivado-path
-                          (hog-get-project-xml project)
+                          (hog--get-project-xml project)
                           )))
      (message (format "Opening Hog Project %s" project))
      (async-shell-command command))))
 
-(defun hog-run-command (command project &rest args)
+(defun hog--run-command (command project &rest args)
   "Run a Hog COMMAND for a given PROJECT (and colorize it)."
 
   (let* ((name (format "%s" command))
@@ -121,13 +121,13 @@ NAME is the function name, COMMAND is the command that should be executed"
 ;; Intelligence for reading project xpr/ppr files
 ;;--------------------------------------------------------------------------------
 
-(defun hog-read-lines-from-file (file-path)
+(defun hog--read-lines-from-file (file-path)
   "Return a list of lines of a file at filePath."
   (with-temp-buffer
     (insert-file-contents file-path)
     (split-string (buffer-string) "\n" t)))
 
-(defun hog-parse-vivado-xpr (project-file)
+(defun hog--parse-vivado-xpr (project-file)
   "Parse a Vivado XPR PROJECT-FILE into a list of libraries and their sources."
   (let ((lib-list (list)))
     (dolist (file-node
@@ -141,24 +141,24 @@ NAME is the function name, COMMAND is the command that should be executed"
         (dolist (attr (xml-get-children (assq 'FileInfo (cdr file-node)) 'Attr))
           (when (equal (xml-get-attribute attr 'Name) "Library")
             (let ((lib  (xml-get-attribute attr 'Val)))
-              (setf lib-list (hog-append-to-library lib-list lib src-file)))))))
+              (setf lib-list (hog--append-to-library lib-list lib src-file)))))))
     lib-list))
 
-(defun hog-parse-ise-ppr (project-file)
+(defun hog--parse-ise-ppr (project-file)
   "Parse a Vivado PPR (ISE) PROJECT-FILE into a list of libraries and their sources."
   ;; FIXME need to parse the dang thing
   )
 
-(defun hog-parse-project-xml (project)
+(defun hog--parse-project-xml (project)
   "Parse a PROJECT xml file into a list"
-  (let* ((xml (hog-get-project-xml project))
+  (let* ((xml (hog--get-project-xml project))
          (extension (file-name-extension xml)))
     (cond ((string-equal extension "xpr")
-           (hog-parse-vivado-xpr xml))
+           (hog--parse-vivado-xpr xml))
           ((string-equal extension "ppr")
-           (hog-parse-ise-ppr xml)))))
+           (hog--parse-ise-ppr xml)))))
 
-(defun hog-append-to-library (src-list lib-name file-name)
+(defun hog--append-to-library (src-list lib-name file-name)
   ""
   (let ((lib (assoc lib-name src-list)))
     (when (eq lib nil)
@@ -216,7 +216,7 @@ NAME is the function name, COMMAND is the command that should be executed"
     ("DisconnectedPorts"         . t)
     ("IntNoRange"                . t)))
 
-(hog-project-do!
+(hog--project-do!
  hog-vhdl-tool-create-project-yaml
  "Create a VHDL-tool yaml file for a Hog PROJECT"
  (with-temp-file (format "%s/vhdltool-config.yaml" (projectile-project-root))
@@ -228,7 +228,7 @@ NAME is the function name, COMMAND is the command that should be executed"
                              (list (cons 'name (car lib))
                                    (cons 'paths (apply #'vector (cadr lib)))))
                            (append
-                            (hog-parse-project-xml project)
+                            (hog--parse-project-xml project)
                             (list hog-ieee-library)
                             (list hog-unisim-library))))
              (cons 'Preferences
@@ -241,7 +241,7 @@ NAME is the function name, COMMAND is the command that should be executed"
 ;; VHDL LS TOML Project File Creation
 ;;------------------------------------------------------------------------------
 
-(defun hog-vhdl-ls-lib-to-string (library)
+(defun hog--vhdl-ls-lib-to-string (library)
   ""
   (let ((lib-name (car library))
         (lib-files (car (cdr library)))
@@ -252,28 +252,28 @@ NAME is the function name, COMMAND is the command that should be executed"
                             (concat pad "\"" file "\",\n" )) lib-files))
      "]\n")))
 
-(defun hog-vhdl-ls-parse-libs (libraries)
+(defun hog--vhdl-ls-parse-libs (libraries)
   ""
   (let ((text "[libraries]\n"))
     (setq libraries (append libraries (list hog-ieee-library)))
     (setq libraries (append libraries (list hog-unisim-library)))
     (dolist (library libraries)
-      ;;(concat text (hog-vhdl-ls-lib-to-string library))
-      ;;(print (concat text (hog-vhdl-ls-lib-to-string library)))
-      (setq text (concat text (hog-vhdl-ls-lib-to-string library))))
+      ;;(concat text (hog--vhdl-ls-lib-to-string library))
+      ;;(print (concat text (hog--vhdl-ls-lib-to-string library)))
+      (setq text (concat text (hog--vhdl-ls-lib-to-string library))))
     text))
 
-(hog-project-do!
+(hog--project-do!
  hog-vhdl-ls-create-project-toml
  "Create a VHDL-tool yaml file for a Hog PROJECT"
- (let ((yaml (hog-vhdl-ls-parse-libs (hog-parse-project-xml project))))
+ (let ((yaml (hog--vhdl-ls-parse-libs (hog--parse-project-xml project))))
    (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (projectile-project-root)))))
 
 ;;------------------------------------------------------------------------------
 ;; GHDL-LS JSON Project File Creation
 ;;------------------------------------------------------------------------------
 
-(defvar ghdl-ls-options
+(defvar hog--ghdl-ls-options
   '(options
     (ghdl_analysis .
                    ["--workdir=work"
@@ -299,20 +299,21 @@ NAME is the function name, COMMAND is the command that should be executed"
                     "--std=08"
                     "-fexplicit"])))
 
-(defun ghdl-ls-format-file-list (file-list)
+(defun hog--ghdl-ls-format-file-list (file-list)
   (list (cons 'files
               (mapcar
                (lambda (file-name) (list `(file . ,file-name) '(language . "vhdl")))
                file-list))))
 
-(hog-project-do!
+(hog--project-do!
  hog-ghdl-ls-create-project-json
  "Create GHDL-LS Json File"
  (if (not (string-equal project ""))
      (progn (let ((output-file (format "%shdl-prj.json" (projectile-project-root)))
-                  (files (apply #'append (mapcar #'cadr (hog-parse-project-xml project)))))
+                  (files (apply #'append (mapcar #'cadr (hog--parse-project-xml project)))))
               (with-temp-file output-file
-                (progn (insert (json-encode (append (list ghdl-ls-options) (ghdl-ls-format-file-list files))))
+                (progn (insert (json-encode (append (list hog--ghdl-ls-options)
+                                                    (hog--ghdl-ls-format-file-list files))))
                        (json-pretty-print-buffer)))))
    (message "You must specify a valid project!")))
 
