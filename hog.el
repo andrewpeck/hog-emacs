@@ -1,4 +1,9 @@
-;;; hog-emacs.el --- functions for working with Hog -*- lexical-binding: t; -*-
+;; hog.el --- functions for working with Hog -*- lexical-binding: t; -*-
+;;
+;; Copyright (C) 2021-2022 Andrew Peck
+
+;; Author: Andrew Peck <andrew.peck@cern.ch>
+;; Package-Requires: ((projectile "2.2") (emacs "24.4"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -43,7 +48,7 @@
               (sort (split-string
                      (shell-command-to-string
                       (format
-                       "find %sTop -name list -type d -or -name hog.conf -type f -or -name *.src -type f"
+                       "find %sTop -name hog.conf -type f -or -name *.src -type f"
                        (projectile-project-root)))) #'string<))))
 
 (defun hog--get-project-xml (project)
@@ -57,7 +62,12 @@
 
 (defmacro hog--project-do! (name docstring body)
   "Macro to create an arbitrary Hog interactive command.
-NAME is the function name, COMMAND is the command that should be executed"
+
+NAME is the function name
+
+DOCSTRING will be the docstring of the generated function
+
+BODY is the body of the command that should be executed"
   `(defun ,name (project)
      ,docstring
      (interactive (list (completing-read "Project: " (hog--get-projects) nil t)))
@@ -91,8 +101,7 @@ NAME is the function name, COMMAND is the command that should be executed"
    (let ((command (format "cd %s && source %s && vivado %s &"
                           (projectile-project-root)
                           hog-vivado-path
-                          (hog--get-project-xml project)
-                          )))
+                          (hog--get-project-xml project))))
      (message (format "Opening Hog Project %s" project))
      (async-shell-command command))))
 
@@ -110,8 +119,7 @@ NAME is the function name, COMMAND is the command that should be executed"
                             ;; path/Hog/Launch{X}.sh project <args>
                             (projectile-project-root) command " " project " " (string-join args " "))
                            ;; optional ccze
-                           (if (executable-find "ccze") " | ccze -A" "")
-                           )))
+                           (if (executable-find "ccze") " | ccze -A" ""))))
       ;; ... and run it
       (compile cmd-str buf))
 
@@ -360,5 +368,5 @@ NAME is the function name, COMMAND is the command that should be executed"
     ;;   )))
     ))
 
-(provide 'hog-emacs)
-;;; hog-emacs.el ends here
+(provide 'hog)
+;;; hog.el ends here
