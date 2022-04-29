@@ -75,7 +75,6 @@ BODY is the body of the command that should be executed"
          (eval ,body)
        (message "You must specify a valid project!"))))
 
-;;;###autoload (autoload 'hog--create-command! "hog-emacs")
 (defmacro hog--create-command! (name command docstring)
   "Macro to create a Hog interactive command.
 NAME is the function name, COMMAND is the command that should be executed"
