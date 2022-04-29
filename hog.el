@@ -156,7 +156,8 @@ NAME is the function name, COMMAND is the command that should be executed"
     (split-string (buffer-string) "\n" t)))
 
 (defun hog--parse-vivado-xpr (project-file)
-  "Parse a Vivado XPR PROJECT-FILE into a list of libraries and their sources."
+  "Parse a Vivado XPR PROJECT-FILE into a list of libraries and
+their sources."
   (let ((lib-list (list)))
     (dolist (file-node
              ;; get a list of all the Project -> FileSets -> FileSet --> File nodes
@@ -173,7 +174,8 @@ NAME is the function name, COMMAND is the command that should be executed"
     lib-list))
 
 (defun hog--parse-ise-ppr (project-file)
-  "Parse a Vivado PPR (ISE) PROJECT-FILE into a list of libraries and their sources."
+  "Parse a Vivado PPR (ISE) PROJECT-FILE into a list of libraries
+and their sources."
   ;; FIXME need to parse the dang thing
   )
 
