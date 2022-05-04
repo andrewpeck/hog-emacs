@@ -339,28 +339,6 @@ Parses the PPR file into a list of libraries and their sources."
    (message "You must specify a valid project!")))
 
 ;;------------------------------------------------------------------------------
-;; Testing
-;;------------------------------------------------------------------------------
-
-(eval-when-compile
-  (cl-flet
-      ((check-lsp-output-file
-        (func output)
-        (when (funcall func "test")
-          (rename-file output (format "test/%s" output) t)
-          (let ((diff (shell-command-to-string (format "git diff test/%s" output))))
-            (if (not (string-empty-p diff))
-                (error (format "Diff in %s:\n%s" output diff)))))))
-
-    ;; (let ((dir (file-name-directory load-file-name)))
-    ;;   (cd dir)
-    ;;   (check-lsp-output-file 'hog-ghdl-ls-create-project-json "hdl-prj.json")
-    ;;   (check-lsp-output-file 'hog-vhdl-ls-create-project-toml "vhdl_ls.toml")
-    ;;   (check-lsp-output-file 'hog-vhdl-tool-create-project-yaml "vhdltool-config.yaml")
-    ;;   )))
-    ))
-
-;;------------------------------------------------------------------------------
 ;; Hog Source File Mode
 ;;------------------------------------------------------------------------------
 
