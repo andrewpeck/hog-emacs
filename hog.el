@@ -38,6 +38,7 @@
 (require 'xml)
 (require 'json)
 (require 'projectile)
+(require 'subr-x)
 
 (defvar hog-vivado-path "~/Xilinx/Vivado/2020.2/settings64.sh")
 (defvar hog-number-of-jobs 4)
