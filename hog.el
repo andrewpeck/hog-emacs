@@ -1,17 +1,15 @@
-;; hog.el --- functions for working with Hog -*- lexical-binding: t; -*-
-;;
-;; hog.readthedocs.io
+;;; hog.el --- Functions for working with Hog -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2021-2022 Andrew Peck
 
 ;; Author: Andrew Peck <andrew.peck@cern.ch>
-;;
+;; URL: https://github.com/andrewpeck/hog-emacs
+;; Version: 0.0.0
 ;; Package-Requires: ((projectile "2.2") (emacs "24.4"))
-
+;; Keywords: tools vhdl fpga
+;;
 ;; This file is not part of GNU Emacs.
-
-;;; License:
-
+;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
@@ -26,8 +24,16 @@
 ;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>
 
 ;;; Commentary:
+;;
+;; This extension facilitates the use of the FPGA build system Hog
+;; https://hog.readthedocs.io
 
 ;;; Code:
+
+;; TODO: parsing of ise projects
+;; TODO: don't just dumbly error if the project isn't found
+;; TODO: open should only find existing projects with XMLs
+;; TODO: add a create-and-open command
 
 (require 'xml)
 (require 'json)
@@ -64,7 +70,7 @@
 
 NAME is the function name
 
-DOCSTRING will be the docstring of the generated function
+DOCSTRING will be the DOCSTRING of the generated function
 
 BODY is the body of the command that should be executed"
   `(defun ,name (project)
@@ -76,7 +82,8 @@ BODY is the body of the command that should be executed"
 
 (defmacro hog--create-command! (name command docstring)
   "Macro to create a Hog interactive command.
-NAME is the function name, COMMAND is the command that should be executed"
+NAME is the function name, COMMAND is the command that should be
+executed, and DOCSTRING will be passed into the generated function."
   `(defun ,name (project)
      ,docstring
      (interactive (list (completing-read "Project: "
@@ -92,6 +99,7 @@ NAME is the function name, COMMAND is the command that should be executed"
 (hog--create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -njobs %d" hog-number-of-jobs) "Launch Project Implementation")
 (hog--create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -njobs %d" hog-number-of-jobs) "Launch Project Full Workflow")
 
+;; TODO: open projects based on found xml files rather than Top files
 (hog--project-do!
  hog-open-project
  "Open the Hog PROJECT."
@@ -104,7 +112,9 @@ NAME is the function name, COMMAND is the command that should be executed"
      (async-shell-command command))))
 
 (defun hog--run-command (command project &rest args)
-  "Run a Hog COMMAND for a given PROJECT (and colorize it)."
+  "Run a Hog COMMAND for a given PROJECT.
+
+colorize it using CCZE, with the Hog arguments ARGS."
 
   (let* ((name (format "%s" command))
          (buf (format "*%s*" name)))
@@ -112,7 +122,7 @@ NAME is the function name, COMMAND is the command that should be executed"
     ;; construct the output command
     (let ((cmd-str (format "cd %s && source %s && %s | tee hog.log %s"
                            (projectile-project-root) ;; cd %s
-                           hog-vivado-path ;; source vivado
+                           hog-vivado-path           ;; source vivado
                            (concat
                             ;; path/Hog/Launch{X}.sh project <args>
                             (projectile-project-root) command " " project " " (string-join args " "))
@@ -129,14 +139,13 @@ NAME is the function name, COMMAND is the command that should be executed"
 ;;--------------------------------------------------------------------------------
 
 (defun hog--read-lines-from-file (file-path)
-  "Return a list of lines of a file at filePath."
+  "Return a list of lines of a file at FILE-PATH."
   (with-temp-buffer
     (insert-file-contents file-path)
     (split-string (buffer-string) "\n" t)))
 
 (defun hog--parse-vivado-xpr (project-file)
-  "Parse a Vivado XPR PROJECT-FILE into a list of libraries and
-their sources."
+  "Parse a Vivado XPR PROJECT-FILE into a list of libraries and their sources."
   (let ((lib-list (list)))
     (dolist (file-node
              ;; get a list of all the Project -> FileSets -> FileSet --> File nodes
@@ -153,13 +162,14 @@ their sources."
     lib-list))
 
 (defun hog--parse-ise-ppr (project-file)
-  "Parse a Vivado PPR (ISE) PROJECT-FILE into a list of libraries
-and their sources."
+  "Parse an ISE PPR PROJECT-FILE.
+
+Parses the PPR file into a list of libraries and their sources."
   ;; FIXME need to parse the dang thing
   project-file)
 
 (defun hog--parse-project-xml (project)
-  "Parse a PROJECT xml file into a list"
+  "Parse a PROJECT xml file into a list."
   (let* ((xml (hog--get-project-xml project))
          (extension (file-name-extension xml)))
     (cond ((string-equal extension "xpr")
@@ -168,7 +178,7 @@ and their sources."
            (hog--parse-ise-ppr xml)))))
 
 (defun hog--append-to-library (src-list lib-name file-name)
-  ""
+  "SRC-LIST LIB-NAME FILE-NAME."
   (let ((lib (assoc lib-name src-list)))
     (when (eq lib nil)
       (setf src-list (append src-list (list (list lib-name (list)))))
@@ -251,7 +261,7 @@ and their sources."
 ;;------------------------------------------------------------------------------
 
 (defun hog--vhdl-ls-lib-to-string (library)
-  ""
+  "LIBRARY."
   (let ((lib-name (car library))
         (lib-files (car (cdr library)))
         (pad "  "))
@@ -262,7 +272,7 @@ and their sources."
      "]\n")))
 
 (defun hog--vhdl-ls-parse-libs (libraries)
-  ""
+  "LIBRARIES."
   (let ((text "[libraries]\n"))
     (setq libraries (append libraries (list hog-ieee-library)))
     (setq libraries (append libraries (list hog-unisim-library)))
@@ -309,6 +319,7 @@ and their sources."
                     "-fexplicit"])))
 
 (defun hog--ghdl-ls-format-file-list (file-list)
+  "FILE-LIST."
   (list (cons 'files
               (mapcar
                (lambda (file-name) (list `(file . ,file-name) '(language . "vhdl")))
@@ -359,30 +370,30 @@ and their sources."
             (group (one-or-more nonl)))))
 
 (defvar hog--file-name-re
-      (rx (seq
-           (? "#")                                          ; optional comment
-           (submatch (* (any alphanumeric ?* ?_ ?- ?/ ?.))) ; file path
-           (? (+ " "))                                      ; optional whitespace
-           (submatch (* (any alphanumeric ?* ?_ ?- ?/ ?.))) ; file path
-           )))
+  (rx (seq
+       (? "#")                                          ; optional comment
+       (submatch (* (any alphanumeric ?* ?_ ?- ?/ ?.))) ; file path
+       (? (+ " "))                                      ; optional whitespace
+       (submatch (* (any alphanumeric ?* ?_ ?- ?/ ?.))) ; file path
+       )))
 
 (defvar hog--src-symbols-list
   '("locked" "93" "nosynth" "noimpl" "nosim" "source" "SystemVerilog" "verilog_header" "XDC"))
 
 ;; FIXME: does not work with file names with spaces
+;; spaces should be escaped
 (defun hog-follow-link-at-point ()
   "Follow the Hog source file at point."
   (interactive)
   (save-excursion
-    (let ((regex-hog-src-link hog--file-name-re))
-      (let ((filename
-             (progn
-               (thing-at-point-looking-at regex-hog-src-link)
-               (match-string-no-properties 1))))
-        ;;  probably shouldn't open if its a normal link, use link-hint-open-link
-        ;;  else
-        (find-file
-         (concat (projectile-project-root) filename))))))
+    (let ((filename
+           (progn
+             (thing-at-point-looking-at hog--file-name-re)
+             (match-string-no-properties 1))))
+      ;;  probably shouldn't open if its a normal link, use link-hint-open-link
+      ;;  else
+      (find-file
+       (concat (projectile-project-root) filename)))))
 
 (defvar hog-src-mode-map
   (let ((map (make-sparse-keymap)))
