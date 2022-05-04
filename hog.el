@@ -1,8 +1,11 @@
 ;; hog.el --- functions for working with Hog -*- lexical-binding: t; -*-
 ;;
+;; hog.readthedocs.io
+;;
 ;; Copyright (C) 2021-2022 Andrew Peck
 
 ;; Author: Andrew Peck <andrew.peck@cern.ch>
+;;
 ;; Package-Requires: ((projectile "2.2") (emacs "24.4"))
 
 ;; This file is not part of GNU Emacs.
@@ -119,27 +122,7 @@ NAME is the function name, COMMAND is the command that should be executed"
       (compile cmd-str buf))
 
     ;; change the output buffer to a read-only, evil normal state buffer
-    (with-current-buffer buf (evil-normal-state) (view-mode))))
-
-(defun hog-follow-link-at-point ()
-  (interactive)
-  (save-excursion
-    ;; this regex stinks
-    (let ((regex-hog-src-link
-           (rx (seq
-                (group (zero-or-more "#"))
-                (group (zero-or-more (syntax whitespace)))
-                (group (one-or-more nonl))
-                (group (zero-or-more (syntax whitespace)))
-                (group (zero-or-more nonl))))))
-      (let
-          ((filename (progn
-                       (thing-at-point-looking-at regex-hog-src-link)
-                       (match-string-no-properties 3))))
-        ;;  probably shouldn't open if its a normal link, use link-hint-open-link
-        ;;  else
-        (find-file
-         (concat (projectile-project-root) filename))))))
+    (with-current-buffer buf (view-mode))))
 
 ;;--------------------------------------------------------------------------------
 ;; Intelligence for reading project xpr/ppr files
@@ -173,7 +156,7 @@ their sources."
   "Parse a Vivado PPR (ISE) PROJECT-FILE into a list of libraries
 and their sources."
   ;; FIXME need to parse the dang thing
-  )
+  project-file)
 
 (defun hog--parse-project-xml (project)
   "Parse a PROJECT xml file into a list"
@@ -365,6 +348,48 @@ and their sources."
     ;;   )))
     ))
 
+;;------------------------------------------------------------------------------
+;; Hog Source File Mode
+;;------------------------------------------------------------------------------
+
+(defvar hog--src-property-re
+  (rx  (seq (one-or-more " ")
+            (group (or "lib" "top"))
+            "="
+            (group (one-or-more nonl)))))
+
+(defvar hog--file-name-re
+      (rx (seq
+           (? "#")                                          ; optional comment
+           (submatch (* (any alphanumeric ?* ?_ ?- ?/ ?.))) ; file path
+           (? (+ " "))                                      ; optional whitespace
+           (submatch (* (any alphanumeric ?* ?_ ?- ?/ ?.))) ; file path
+           )))
+
+(defvar hog--src-symbols-list
+  '("locked" "93" "nosynth" "noimpl" "nosim" "source" "SystemVerilog" "verilog_header" "XDC"))
+
+;; FIXME: does not work with file names with spaces
+(defun hog-follow-link-at-point ()
+  "Follow the Hog source file at point."
+  (interactive)
+  (save-excursion
+    (let ((regex-hog-src-link hog--file-name-re))
+      (let ((filename
+             (progn
+               (thing-at-point-looking-at regex-hog-src-link)
+               (match-string-no-properties 1))))
+        ;;  probably shouldn't open if its a normal link, use link-hint-open-link
+        ;;  else
+        (find-file
+         (concat (projectile-project-root) filename))))))
+
+(defvar hog-src-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [return] #'hog-follow-link-at-point)
+    map)
+  "Keymap for `hog-src-mode'.")
+
 (define-generic-mode 'hog-src-mode
   ;; comment list
   '("#")
@@ -373,9 +398,11 @@ and their sources."
   nil
 
   ;; font lock list:
-  `(("\\<\\(locked\\|93\\|nosynth\\|noimpl\\|nosim\\|source\\|SystemVerilog\\|verilog_header\\|93\\|XDC\\)\\>" . font-lock-keyword-face)
-    ("lib=\\(.*\\)" . font-lock-string-face)
-    ("top=\\(.*\\)" . font-lock-string-face))
+  `((,(regexp-opt hog--src-symbols-list 'symbols) . font-lock-keyword-face) ; symbol highlighting
+    (,hog--src-property-re . (1  font-lock-keyword-face))                   ; lib=
+    (,hog--src-property-re . (2  font-lock-builtin-face))                   ; =ieee
+    (,hog--file-name-re . (1  font-lock-string-face))                       ; file name
+    (,hog--file-name-re . (2  font-lock-doc-face)))                         ; ipbus decoder file
 
   ;; auto mode list
   '("\\.src\\'" "\\.con\\'" "\\.lst\\'")
@@ -400,7 +427,9 @@ and their sources."
 
      ;; Treat these characters as punctuation, meaning that
      ;; e.g. "|KEYWORD" is treated similarly to "KEYWORD".
-     (modify-syntax-entry ?= ".")))
+     (modify-syntax-entry ?= ".")
+
+     (use-local-map hog-src-mode-map)))
 
   ;; docstring
   "Major mode for Hog src files")
