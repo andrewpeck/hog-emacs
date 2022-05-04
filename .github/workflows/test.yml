@@ -51,6 +51,8 @@ jobs:
     - name: Install aspell (spell checker)
       run: |
         sudo apt update && sudo apt --yes install aspell aspell-en
+        echo -e "*Vivado\n#" | aspell -a
+        echo -e "*XML\n#" | aspell -a
 
     - uses: purcell/setup-emacs@master
       with:
