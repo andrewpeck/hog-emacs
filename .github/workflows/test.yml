@@ -47,6 +47,11 @@ jobs:
           - 27.1
           - snapshot
     steps:
+
+    - name: Install aspell (spell checker)
+      run: |
+        sudo apt update && sudo apt --yes install aspell aspell-en
+
     - uses: purcell/setup-emacs@master
       with:
         version: ${{ matrix.emacs_version }}
