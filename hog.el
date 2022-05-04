@@ -448,3 +448,4 @@ Parses the PPR file into a list of libraries and their sources."
 
 (provide 'hog)
 ;;; hog.el ends here
+;; LocalWords:  xml vivado
