@@ -30,10 +30,6 @@
 (require 'json)
 (require 'projectile)
 
-(add-to-list 'auto-mode-alist '("\\.src\\'" . tcl-mode))  ;; tcl mode for hog files
-(add-to-list 'auto-mode-alist '("\\.con\\'" . tcl-mode))  ;; tcl mode for hog files
-(add-to-list 'auto-mode-alist '("\\.lst\\'" . tcl-mode))  ;; tcl mode for hog files
-
 (defvar hog-vivado-path "~/Xilinx/Vivado/2020.2/settings64.sh")
 (defvar hog-number-of-jobs 4)
 
@@ -368,6 +364,46 @@ and their sources."
     ;;   (check-lsp-output-file 'hog-vhdl-tool-create-project-yaml "vhdltool-config.yaml")
     ;;   )))
     ))
+
+(define-generic-mode 'hog-src-mode
+  ;; comment list
+  '("#")
+
+  ;; keyword list
+  nil
+
+  ;; font lock list:
+  `(("\\<\\(locked\\|93\\|nosynth\\|noimpl\\|nosim\\|source\\|SystemVerilog\\|verilog_header\\|93\\|XDC\\)\\>" . font-lock-keyword-face)
+    ("lib=\\(.*\\)" . font-lock-string-face)
+    ("top=\\(.*\\)" . font-lock-string-face))
+
+  ;; auto mode list
+  '("\\.src\\'" "\\.con\\'" "\\.lst\\'")
+
+  ;; function list
+  (list
+   (lambda ()
+
+     ;; The syntax is changed only for table SYNTAX-TABLE, which defaults to
+     ;; the current buffer's syntax table.
+     ;; CHAR may be a cons (MIN . MAX), in which case, syntaxes of all characters
+     ;; in the range MIN to MAX are changed.
+     ;;
+     ;;  Space or -  whitespace syntax.    w   word constituent.
+     ;;  _           symbol constituent.   .   punctuation.
+     ;;  (           open-parenthesis.     )   close-parenthesis.
+     ;;  "           string quote.         \   escape.
+     ;;  $           paired delimiter.     '   expression quote or prefix operator.
+     ;;  <           comment starter.      >   comment ender.
+     ;;  /           character-quote.      @   inherit from parent table.
+     ;;  |           generic string fence. !   generic comment fence.
+
+     ;; Treat these characters as punctuation, meaning that
+     ;; e.g. "|KEYWORD" is treated similarly to "KEYWORD".
+     (modify-syntax-entry ?= ".")))
+
+  ;; docstring
+  "Major mode for Hog src files")
 
 (provide 'hog)
 ;;; hog.el ends here
