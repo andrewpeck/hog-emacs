@@ -130,7 +130,7 @@ colorize it using CCZE, with the Hog arguments ARGS."
                            ;; optional ccze
                            (if (executable-find "ccze") " | ccze -A" ""))))
       ;; ... and run it
-      (compile cmd-str buf))
+      (compile cmd-str))
 
     ;; change the output buffer to a read-only, evil normal state buffer
     (with-current-buffer buf (view-mode))))
