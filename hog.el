@@ -371,8 +371,10 @@ Parses the PPR file into a list of libraries and their sources."
              (match-string-no-properties 1))))
       ;;  probably shouldn't open if its a normal link, use link-hint-open-link
       ;;  else
-      (find-file
-       (concat (projectile-project-root) filename)))))
+      (let ((file-with-path
+             (concat (projectile-project-root) filename)))
+        (when (file-exists-p file-with-path)
+              (find-file file-with-path))))))
 
 (defvar hog-src-mode-map
   (let ((map (make-sparse-keymap)))
