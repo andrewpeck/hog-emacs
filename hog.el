@@ -100,17 +100,20 @@ executed, and DOCSTRING will be passed into the generated function."
 (hog--create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -njobs %d" hog-number-of-jobs) "Launch Project Implementation")
 (hog--create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -njobs %d" hog-number-of-jobs) "Launch Project Full Workflow")
 
-;; TODO: open projects based on found xml files rather than Top files
-(hog--project-do!
- hog-open-project
+;; TODO: check if the xml file exists, prompt to create if it doesn't
+(hog--project-do! hog-open-project
  "Open the Hog PROJECT."
  (progn
-   (let ((command (format "cd %s && source %s && vivado %s &"
-                          (projectile-project-root)
-                          hog-vivado-path
-                          (hog--get-project-xml project))))
-     (message (format "Opening Hog Project %s" project))
-     (async-shell-command command))))
+   (let ((project-file (hog--get-project-xml project)))
+     (if (and project-file (file-exists-p project-file))
+         (progn
+           (let ((command (format "cd %s && source %s && vivado %s &"
+                                  (projectile-project-root)
+                                  hog-vivado-path
+                                  project-file))
+                 (message (format "Opening Hog Project %s" project)))
+             (async-shell-command command)))
+       (message (format "Project file %s not found!" project-file))))))
 
 (defun hog--run-command (command project &rest args)
   "Run a Hog COMMAND for a given PROJECT.
