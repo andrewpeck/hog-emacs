@@ -30,6 +30,7 @@ This package also includes a major mode which provides syntax highlighting for
 Hog source files, and enables the RET key to follow files as links.
 
 You should customize these variables to your liking, e.g.
+
 #+begin_src  elisp
 (setq hog-vivado-path "/opt/Xilinx/Vivado/2020.2/settings64.sh"
       hog-number-of-jobs 4

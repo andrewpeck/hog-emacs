@@ -521,19 +521,19 @@ Parses the PPR file into a list of libraries and their sources."
     ;; replace trailing tabs and insert the template
     (insert (s-replace-regexp "[[:blank:]]*$" "" template-text))))
 
-(defun hog-insert-vhdl-template (template)
+(defun hog-insert-vhdl-template ()
   "Insert a vivado vhdl template"
   (interactive (hog--insert-template 'vhdl)))
 
-(defun hog-insert-verilog-template (template)
+(defun hog-insert-verilog-template ()
   "Insert a vivado verilog template"
   (interactive (hog--insert-template 'verilog)))
 
-(defun hog-insert-xdc-template (template)
+(defun hog-insert-xdc-template ()
   "Insert a vivado XDC template"
   (interactive (hog--insert-template 'xdc)))
 
-(defun hog-insert-systemverilog-template (template)
+(defun hog-insert-systemverilog-template ()
   "Insert a vivado systemverilog template"
   (interactive (hog--insert-template 'systemverilog)))
 
