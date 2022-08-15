@@ -5,7 +5,7 @@
 ;; Author: Andrew Peck <andrew.peck@cern.ch>
 ;; URL: https://github.com/andrewpeck/hog-emacs
 ;; Version: 0.0.0
-;; Package-Requires: ((projectile "2.2") (s) (json) (subr-x) (emacs "27.1"))
+;; Package-Requires: ((projectile "2.2") (s) (json) (emacs "27.1"))
 ;; Keywords: tools vhdl fpga
 ;;
 ;; This file is not part of GNU Emacs.
@@ -38,7 +38,6 @@
 (require 'xml)
 (require 'json)
 (require 'projectile)
-(require 'subr-x)
 (require 's)
 
 (defvar hog-vivado-path "/opt/Xilinx/Vivado/2021.1/settings64.sh")
