@@ -131,3 +131,26 @@
                "gbt-sc/GBT-SC/SCA/sca_rx_fifo.vhd"
                "gbt-sc/GBT-SC/SCA/sca_top.vhd"
                "gbt-sc/GBT-SC/SCA/sca_tx.vhd"))))))
+
+;;------------------------------------------------------------------------------
+;; Testing
+;;------------------------------------------------------------------------------
+
+;; TODO: move to ert-test
+;; (eval-when-compile
+;;   (cl-flet
+;;       ((check-lsp-output-file
+;;         (func output)
+;;         (when (funcall func "test")
+;;           (rename-file output (format "test/%s" output) t)
+;;           (let ((diff (shell-command-to-string (format "git diff test/%s" output))))
+;;             (if (not (string-empty-p diff))
+;;                 (error (format "Diff in %s:\n%s" output diff)))))))
+
+;; (let ((dir (file-name-directory load-file-name)))
+;;   (cd dir)
+;;   (check-lsp-output-file 'hog-ghdl-ls-create-project-json "hdl-prj.json")
+;;   (check-lsp-output-file 'hog-vhdl-ls-create-project-toml "vhdl_ls.toml")
+;;   (check-lsp-output-file 'hog-vhdl-tool-create-project-yaml "vhdltool-config.yaml")
+;;   )))
+;; ))

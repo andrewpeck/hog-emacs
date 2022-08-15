@@ -445,7 +445,7 @@ Parses the PPR file into a list of libraries and their sources."
                     (cons child-name parents) nil)))
 
           (when template-path
-            (add-to-list 'components (reverse template-path)))
+            (push (reverse template-path) components))
 
           (let ((sub-components
                  (hog--vivado-collect-templates child
@@ -506,7 +506,7 @@ Parses the PPR file into a list of libraries and their sources."
           (s-split " -> " template))))
 
 
-     ;; replace trailing tabs and insert the template
+    ;; replace trailing tabs and insert the template
     (insert (s-replace-regexp "[[:blank:]]*$" "" template-text))))
 
 (provide 'hog)
