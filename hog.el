@@ -452,8 +452,8 @@ Parses the PPR file into a list of libraries and their sources."
                                                 :components components
                                                 :parents (cons child-name parents))))
             (when sub-components
-              (setq components sub-components)
-              (append components sub-components))))))) components)
+              (setq components sub-components)))))))
+  components)
 
 (defun hog--walk-vivado-template-xml (fname)
   (hog--vivado-collect-templates
