@@ -48,12 +48,14 @@
 
 (defvar hog-template-vhdl-xml-path (concat hog-template-xml-path "vhdl.xml"))
 (defvar hog-template-verilog-xml-path (concat hog-template-xml-path "verilog.xml"))
+(defvar hog-template-systemverilog-xml-path (concat hog-template-xml-path "systemverilog.xml"))
 (defvar hog-template-xdc-xml-path (concat hog-template-xml-path "xdc.xml"))
 
 (defvar hog-template-cache-dir "~/.emacs.d/")
 
 (setq hog-template-vhdl-cache (concat hog-template-cache-dir "/vhdl.json")
       hog-template-verilog-cache (concat hog-template-cache-dir "/verilog.json")
+      hog-template-systemverilog-cache (concat hog-template-cache-dir "/systemverilog.json")
       hog-template-xdc-cache (concat hog-template-cache-dir "/xdc.json"))
 
 (defun hog--get-projects ()
@@ -478,12 +480,14 @@ Parses the PPR file into a list of libraries and their sources."
   (pcase lang
     ('vhdl hog-template-vhdl-cache)
     ('verilog hog-template-verilog-cache)
+    ('systemverilog hog-template-systemverilog-cache)
     ('xdc hog-template-xdc-cache)))
 
 (defun hog--template-xml-path (lang)
   (pcase lang
     ('vhdl hog-template-vhdl-xml-path)
     ('verilog hog-template-verilog-xml-path)
+    ('systemverilog hog-template-systemverilog-xml-path)
     ('xdc hog-template-xdc-xml-path)))
 
 (defun hog--get-templates (lang)
@@ -536,16 +540,20 @@ Parses the PPR file into a list of libraries and their sources."
     (insert (s-replace-regexp "[[:blank:]]*$" "" template-text))))
 
 (defun hog-insert-vhdl-template (template)
-  "Insert a vivado template"
+  "Insert a vivado vhdl template"
   (interactive (hog--insert-template 'vhdl)))
 
 (defun hog-insert-verilog-template (template)
-  "Insert a vivado template"
+  "Insert a vivado verilog template"
   (interactive (hog--insert-template 'verilog)))
 
 (defun hog-insert-xdc-template (template)
-  "Insert a vivado template"
+  "Insert a vivado XDC template"
   (interactive (hog--insert-template 'xdc)))
+
+(defun hog-insert-systemverilog-template (template)
+  "Insert a vivado systemverilog template"
+  (interactive (hog--insert-template 'systemverilog)))
 
 (provide 'hog)
 ;;; hog.el ends here
