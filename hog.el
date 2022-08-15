@@ -116,8 +116,8 @@ executed, and DOCSTRING will be passed into the generated function."
            (let ((command (format "cd %s && source %s && vivado %s &"
                                   (projectile-project-root)
                                   hog-vivado-path
-                                  project-file))
-                 (message (format "Opening Hog Project %s" project)))
+                                  project-file)))
+             (message (format "Opening Hog Project %s" project))
              (async-shell-command command)))
        (message (format "Project file %s not found!" project-file))))))
 
