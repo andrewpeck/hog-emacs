@@ -474,17 +474,32 @@ Parses the PPR file into a list of libraries and their sources."
   (mapcar (lambda (x)
             (string-join x " -> ")) templates))
 
-(defun hog--get-vhdl-templates ()
+(defun hog--template-cache (lang)
+  (pcase lang
+    ('vhdl hog-template-vhdl-cache)
+    ('verilog hog-template-verilog-cache)
+    ('xdc hog-template-xdc-cache)))
+
+(defun hog--template-xml-path (lang)
+  (pcase lang
+    ('vhdl hog-template-vhdl-xml-path)
+    ('verilog hog-template-verilog-xml-path)
+    ('xdc hog-template-xdc-xml-path)))
+
+(defun hog--get-templates (lang)
 
   ;; if the cache file does not exist, create it
-  (when (not  (file-exists-p hog-template-vhdl-cache))
-    (with-temp-file hog-template-vhdl-cache
+  (when (not  (file-exists-p (hog--template-cache lang)))
+    (with-temp-file (hog--template-cache lang)
       (insert (json-encode
-               (cons "Templates" (hog--walk-vivado-template-xml hog-template-vhdl-xml-path))))))
+               (cons "Templates" (hog--walk-vivado-template-xml (hog--template-xml-path lang)))))))
 
   ;; else read the cache file
   (let ((json-array-type 'list))
-    (cdr (json-read-file hog-template-vhdl-cache))))
+    (cdr (json-read-file (hog--template-cache lang)))))
+
+(defun hog--get-vhdl-templates ()
+  (hog--get-templates 'vhdl))
 
 (defun hog--vivado-decend-template (nodes path)
 
@@ -503,22 +518,34 @@ Parses the PPR file into a list of libraries and their sources."
                       (car (last child)))))))))
     template-content))
 
-(defun hog-insert-vhdl-template (template)
+(defun hog--insert-template (lang)
   "Insert a vivado template"
 
-  (interactive
-   (list (completing-read
-          "Template: "
-          (hog--stringify-templates (hog--get-vhdl-templates)))))
+  (setq template
+        (completing-read
+         "Template: "
+         (hog--stringify-templates (hog--get-templates lang))))
 
   (message (concat "Inserting: " template))
   (let ((template-text
          (hog--vivado-decend-template
-          (assq 'RootFolder (xml-parse-file hog-template-vhdl-xml-path))
+          (assq 'RootFolder (xml-parse-file (hog--template-xml-path lang)))
           (s-split " -> " template))))
 
     ;; replace trailing tabs and insert the template
     (insert (s-replace-regexp "[[:blank:]]*$" "" template-text))))
+
+(defun hog-insert-vhdl-template (template)
+  "Insert a vivado template"
+  (interactive (hog--insert-template 'vhdl)))
+
+(defun hog-insert-verilog-template (template)
+  "Insert a vivado template"
+  (interactive (hog--insert-template 'verilog)))
+
+(defun hog-insert-xdc-template (template)
+  "Insert a vivado template"
+  (interactive (hog--insert-template 'xdc)))
 
 (provide 'hog)
 ;;; hog.el ends here
