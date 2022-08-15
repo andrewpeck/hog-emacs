@@ -490,7 +490,7 @@ Parses the PPR file into a list of libraries and their sources."
                       (car (last child)))))))))
     template-content))
 
-(defun hog-insert-vivado-template (template)
+(defun hog-insert-vhdl-template (template)
   "Insert a vivado template"
 
   (interactive
@@ -503,7 +503,6 @@ Parses the PPR file into a list of libraries and their sources."
          (hog--vivado-decend-template
           (assq 'RootFolder (xml-parse-file hog-template-xml-path))
           (s-split " -> " template))))
-
 
     ;; replace trailing tabs and insert the template
     (insert (s-replace-regexp "[[:blank:]]*$" "" template-text))))

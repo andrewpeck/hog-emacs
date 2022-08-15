@@ -17,6 +17,16 @@ It also includes facilities for creating configuration files from Hog projects f
 - ~hog-ghdl-ls-create-project-json~
 - ~hog-vhdl-tool-create-project-yaml~
 
+Additionally, hog-emacs now supports insertion of Vivado templates. They are scrubbed from the XML
+source found in your vivado path.
+
+- ~hog-insert-vhdl-template~
+- ~hog-insert-verilog-template~ (not yet implemented)
+- ~hog-insert-xdc-template~ (not yet implemented)
+
+This package also includes a major mode which provides syntax highlighting for
+Hog source files, and enables the RET key to follow files as links.
+
 You should customize these variables to your liking:
 #+begin_src  elisp
 (setq
