@@ -26,8 +26,8 @@ source found in your vivado path.
 - ~hog-insert-systemverilog-template~
 - ~hog-insert-xdc-template~
 
-This package also includes a major mode which provides syntax highlighting for
-Hog source files, and enables the RET key to follow files as links.
+This package also includes a major mode which provides syntax highlighting for Hog source files, and
+enables the M-RET key to follow files as links.
 
 You should customize these variables to your liking, e.g.
 

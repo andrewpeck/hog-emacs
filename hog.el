@@ -386,8 +386,7 @@ Parses the PPR file into a list of libraries and their sources."
 
 (defvar hog-src-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [return] #'hog-follow-link-at-point)
-    map)
+    (define-key map (kbd "M-RET") #'hog-follow-link-at-point) map)
   "Keymap for `hog-src-mode'.")
 
 (define-generic-mode 'hog-src-mode
