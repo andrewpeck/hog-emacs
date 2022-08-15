@@ -507,19 +507,19 @@ Parses the PPR file into a list of libraries and their sources."
 (defun hog--insert-template (lang)
   "Insert a vivado template"
 
-  (setq template
-        (completing-read
-         "Template: "
-         (hog--stringify-templates (hog--get-templates lang))))
+  (let ((template
+         (completing-read
+          "Template: "
+          (hog--stringify-templates (hog--get-templates lang)))))
 
-  (message (concat "Inserting: " template))
-  (let ((template-text
-         (hog--vivado-decend-template
-          (assq 'RootFolder (xml-parse-file (hog--template-xml-path lang)))
-          (s-split " -> " template))))
+    (message (concat "Inserting: " template))
+    (let ((template-text
+           (hog--vivado-decend-template
+            (assq 'RootFolder (xml-parse-file (hog--template-xml-path lang)))
+            (s-split " -> " template))))
 
-    ;; replace trailing tabs and insert the template
-    (insert (s-replace-regexp "[[:blank:]]*$" "" template-text))))
+      ;; replace trailing tabs and insert the template
+      (insert (s-replace-regexp "[[:blank:]]*$" "" template-text)))))
 
 (defun hog-insert-vhdl-template ()
   "Insert a vivado vhdl template"
