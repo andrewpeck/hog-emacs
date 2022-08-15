@@ -5,7 +5,7 @@
 ;; Author: Andrew Peck <andrew.peck@cern.ch>
 ;; URL: https://github.com/andrewpeck/hog-emacs
 ;; Version: 0.0.0
-;; Package-Requires: ((projectile "2.2") (emacs "24.4"))
+;; Package-Requires: ((projectile "2.2") (s) (json) (subr-x) (emacs "27.1"))
 ;; Keywords: tools vhdl fpga
 ;;
 ;; This file is not part of GNU Emacs.
@@ -39,9 +39,12 @@
 (require 'json)
 (require 'projectile)
 (require 'subr-x)
+(require 's)
 
-(defvar hog-vivado-path "~/Xilinx/Vivado/2020.2/settings64.sh")
+(defvar hog-vivado-path "/opt/Xilinx/Vivado/2021.1/settings64.sh")
 (defvar hog-number-of-jobs 4)
+(defvar hog-template-cache "~/.emacs.d/vhdl.json")
+(defvar hog-template-xml-path "/opt/Xilinx/Vivado/2020.2/data/parts/xilinx/templates/vivado/vhdl.xml")
 
 (defun hog--get-projects ()
   "Get a list of available Hog projects."
@@ -428,6 +431,83 @@ Parses the PPR file into a list of libraries and their sources."
 
   ;; docstring
   "Major mode for Hog src files")
+
+(cl-defun hog--vivado-collect-templates (nodes &key components parents)
+
+  (let* ((children (xml-node-children nodes)))
+
+    (dolist (child children)
+      (when (listp child)
+        (let* ((child-name (xml-get-attribute child 'label))
+               (tree-type (xml-get-attribute child 'treetype))
+               (template-path
+                (if (string=  tree-type "template")
+                    (cons child-name parents) nil)))
+
+          (when template-path
+            (add-to-list 'components (reverse template-path)))
+
+          (let ((sub-components
+                 (hog--vivado-collect-templates child
+                                                :components components
+                                                :parents (cons child-name parents))))
+            (when sub-components
+              (setq components sub-components)
+              (append components sub-components))))))) components)
+
+(defun hog--walk-vivado-template-xml (fname)
+  (hog--vivado-collect-templates
+   (assq 'RootFolder (xml-parse-file  fname))))
+
+(defun hog--stringify-templates (templates)
+  (mapcar (lambda (x)
+            (string-join x " -> ")) templates))
+
+(defun hog--get-vhdl-templates ()
+
+  ;; if the cache file does not exist, create it
+  (when (not  (file-exists-p hog-template-cache))
+    (with-temp-file hog-template-cache
+      (insert (json-encode (cons "Templates" (hog--walk-vivado-template-xml hog-template-xml-path))))))
+
+  ;; else read the cache file
+  (let ((json-array-type 'list))
+    (cdr (json-read-file hog-template-cache))))
+
+(defun hog--vivado-decend-template (nodes path)
+
+  (let ((children (xml-node-children nodes))
+        (template-content nil))
+    (dolist (child children)
+      (when path
+        (when (listp child)
+          (let ((child-name (xml-get-attribute child 'label))
+                (treetype (xml-get-attribute child 'treetype)))
+            (when (string= child-name (car path))
+              ;; (princ (format "       %s (search=%s)\n" child-name (car path)))
+              (setq template-content
+                    (if (not (string= treetype "template"))
+                        (hog--vivado-decend-template child (cdr path))
+                      (car (last child)))))))))
+    template-content))
+
+(defun hog-insert-vivado-template (template)
+  "Insert a vivado template"
+
+  (interactive
+   (list (completing-read
+          "Template: "
+          (hog--stringify-templates (hog--get-vhdl-templates)))))
+
+  (message (concat "Inserting: " template))
+  (let ((template-text
+         (hog--vivado-decend-template
+          (assq 'RootFolder (xml-parse-file hog-template-xml-path))
+          (s-split " -> " template))))
+
+
+     ;; replace trailing tabs and insert the template
+    (insert (s-replace-regexp "[[:blank:]]*$" "" template-text))))
 
 (provide 'hog)
 ;;; hog.el ends here
