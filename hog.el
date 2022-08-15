@@ -436,7 +436,8 @@ Parses the PPR file into a list of libraries and their sources."
 
 (cl-defun hog--vivado-collect-templates (nodes &key components parents)
   "Collect a list of all Vivado templates from xml NODES.
-It is called recursively, tracking the collective COMPONENTS and the hierarchy of their PARENTS."
+It is called recursively, tracking the collective COMPONENTS and
+the hierarchy of their PARENTS."
 
   (let* ((children (xml-node-children nodes)))
 
