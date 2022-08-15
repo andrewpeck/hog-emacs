@@ -1,8 +1,8 @@
 #+TITLE:   Hog Emacs
-#+DATE:    September 14, 2021
 #+STARTUP: inlineimages nofold
 
-A collection of functions for working with Hog ([[https://hog.readthedocs.io/][https://hog.readthedocs.io]]) projects from emacs.
+A collection of functions for working with Hog ([[https://hog.readthedocs.io/][https://hog.readthedocs.io]])
+projects from emacs.
 
 - ~hog-open-project~
 - ~hog-launch-impl~
@@ -11,7 +11,8 @@ A collection of functions for working with Hog ([[https://hog.readthedocs.io/][h
 - ~hog-open-project~
 - ~hog-follow-link-at-point~
 
-It also includes facilities for creating configuration files from Hog projects for various HDL language servers:
+It also includes facilities for creating configuration files from Hog projects
+for various HDL language servers:
 
 - ~hog-vhdl-ls-create-project-toml~
 - ~hog-ghdl-ls-create-project-json~
@@ -21,15 +22,17 @@ Additionally, hog-emacs now supports insertion of Vivado templates. They are scr
 source found in your vivado path.
 
 - ~hog-insert-vhdl-template~
-- ~hog-insert-verilog-template~ (not yet implemented)
-- ~hog-insert-xdc-template~ (not yet implemented)
+- ~hog-insert-verilog-template~
+- ~hog-insert-systemverilog-template~
+- ~hog-insert-xdc-template~
 
 This package also includes a major mode which provides syntax highlighting for
 Hog source files, and enables the RET key to follow files as links.
 
-You should customize these variables to your liking:
+You should customize these variables to your liking, e.g.
 #+begin_src  elisp
-(setq
- hog-vivado-path "~/Xilinx/Vivado/2020.2/settings64.sh"
- hog-number-of-jobs 4)
+(setq hog-vivado-path "/opt/Xilinx/Vivado/2020.2/settings64.sh"
+      hog-number-of-jobs 4
+      hog-template-cache-dir "~/.emacs.d/"
+      hog-template-xml-path "/opt/Xilinx/Vivado/2020.2/data/parts/xilinx/templates/vivado/")
 #+end_src
