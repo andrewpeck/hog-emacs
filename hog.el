@@ -358,11 +358,10 @@ Parses the PPR file into a list of libraries and their sources."
 
 (defvar hog--file-name-re
   (rx (seq
-       (? "#")                                          ; optional comment
-       (submatch (* (any alphanumeric ?* ?_ ?- ?/ ?.))) ; file path
-       (? (+ " "))                                      ; optional whitespace
-       (submatch (* (any alphanumeric ?* ?_ ?- ?/ ?.))) ; file path
-       )))
+       (? "#")                                             ; optional comment
+       (submatch (* (any alphanumeric ?* ?_ ?- ?/ ?.)))    ; file path
+       (? (+ " "))                                         ; optional whitespace
+       (submatch (* (any alphanumeric ?* ?_ ?- ?/ ?.)))))) ; file path
 
 (defvar hog--src-symbols-list
   '("locked" "93" "nosynth" "noimpl" "nosim" "source" "SystemVerilog" "verilog_header" "XDC"))
