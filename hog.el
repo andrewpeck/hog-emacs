@@ -44,9 +44,9 @@
 (defvar hog-number-of-jobs 4)
 
 (defvar hog-template-xml-path
-      (concat (file-name-directory hog-vivado-path) "data/parts/xilinx/templates/vivado/"))
+  (concat (file-name-directory hog-vivado-path) "data/parts/xilinx/templates/vivado/"))
 
-(defvar hog-template-cache-dir "~/.emacs.d/")
+(defvar hog-template-cache-dir user-emacs-directory)
 
 (defun hog--get-projects ()
   "Get a list of available Hog projects."
@@ -436,6 +436,8 @@ Parses the PPR file into a list of libraries and their sources."
   "Major mode for Hog src files")
 
 (cl-defun hog--vivado-collect-templates (nodes &key components parents)
+  "Collect a list of all Vivado templates from xml NODES.
+It is called recursively, tracking the collective COMPONENTS and the hierarchy of their PARENTS."
 
   (let* ((children (xml-node-children nodes)))
 
@@ -458,21 +460,29 @@ Parses the PPR file into a list of libraries and their sources."
               (setq components sub-components)))))))
   components)
 
-(defun hog--walk-vivado-template-xml (fname)
+(defun hog--walk-vivado-template-xml (FILE)
+  "Walks through a vivado XML template FILE and collects templates."
   (hog--vivado-collect-templates
-   (assq 'RootFolder (xml-parse-file  fname))))
+   (assq 'RootFolder (xml-parse-file FILE))))
 
 (defun hog--stringify-templates (templates)
+  "Stringifies a list of TEMPLATES.
+It joins together the path into a single string with separated by arrows."
   (mapcar (lambda (x)
             (string-join x " -> ")) templates))
 
 (defun hog--template-cache (lang)
+  "Return the path of the hog cached template list for a given LANG."
   (concat hog-template-cache-dir "/" (symbol-name lang) ".json"))
 
 (defun hog--template-xml-path (lang)
+  "Return the path of the vivado xml template file for a given LANG."
   (concat hog-template-xml-path "/" (symbol-name lang) ".xml"))
 
 (defun hog--get-templates (lang)
+  "Return the template list for a given LANG.
+This uses either cached values stored in JSON, or creating the
+JSON file if it does not exist."
 
   ;; if the cache file does not exist, create it
   (when (not  (file-exists-p (hog--template-cache lang)))
@@ -484,10 +494,10 @@ Parses the PPR file into a list of libraries and their sources."
   (let ((json-array-type 'list))
     (cdr (json-read-file (hog--template-cache lang)))))
 
-(defun hog--get-vhdl-templates ()
-  (hog--get-templates 'vhdl))
-
 (defun hog--vivado-decend-template (nodes path)
+  "Return a single Vivado template text.
+This walks through a collection of XML NODES, and finds the
+template at a specific PATH."
 
   (let ((children (xml-node-children nodes))
         (template-content nil))
@@ -505,7 +515,7 @@ Parses the PPR file into a list of libraries and their sources."
     template-content))
 
 (defun hog--insert-template (lang)
-  "Insert a vivado template"
+  "Insert a vivado template for a specific LANG."
 
   (let ((template
          (completing-read
@@ -522,19 +532,19 @@ Parses the PPR file into a list of libraries and their sources."
       (insert (s-replace-regexp "[[:blank:]]*$" "" template-text)))))
 
 (defun hog-insert-vhdl-template ()
-  "Insert a vivado vhdl template"
+  "Insert a vivado vhdl template."
   (interactive (hog--insert-template 'vhdl)))
 
 (defun hog-insert-verilog-template ()
-  "Insert a vivado verilog template"
+  "Insert a vivado verilog template."
   (interactive (hog--insert-template 'verilog)))
 
 (defun hog-insert-xdc-template ()
-  "Insert a vivado XDC template"
+  "Insert a vivado XDC template."
   (interactive (hog--insert-template 'xdc)))
 
 (defun hog-insert-systemverilog-template ()
-  "Insert a vivado systemverilog template"
+  "Insert a vivado systemverilog template."
   (interactive (hog--insert-template 'systemverilog)))
 
 (provide 'hog)
