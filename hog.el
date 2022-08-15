@@ -5,7 +5,7 @@
 ;; Author: Andrew Peck <andrew.peck@cern.ch>
 ;; URL: https://github.com/andrewpeck/hog-emacs
 ;; Version: 0.0.0
-;; Package-Requires: ((projectile "2.2") (s "1.0") (json "1.5") (emacs "27.1"))
+;; Package-Requires: ((projectile "2.2") (s "1.0") (emacs "27.1"))
 ;; Keywords: tools vhdl fpga
 ;;
 ;; This file is not part of GNU Emacs.
@@ -36,7 +36,6 @@
 ;; TODO: add a create-and-open command
 
 (require 'xml)
-(require 'json)
 (require 'projectile)
 (require 's)
 
