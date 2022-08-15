@@ -5,7 +5,7 @@
 ;; Author: Andrew Peck <andrew.peck@cern.ch>
 ;; URL: https://github.com/andrewpeck/hog-emacs
 ;; Version: 0.0.0
-;; Package-Requires: ((projectile "2.2") (s) (json) (emacs "27.1"))
+;; Package-Requires: ((projectile "2.2") (s "1.0") (json "1.5") (emacs "27.1"))
 ;; Keywords: tools vhdl fpga
 ;;
 ;; This file is not part of GNU Emacs.
@@ -549,4 +549,4 @@ template at a specific PATH."
 
 (provide 'hog)
 ;;; hog.el ends here
-;; LocalWords:  xml vivado
+;; LocalWords:  xml vivado vhdl verilog systemverilog stringifies
