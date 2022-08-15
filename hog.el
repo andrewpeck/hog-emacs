@@ -43,20 +43,10 @@
 (defvar hog-vivado-path "/opt/Xilinx/Vivado/2021.1/settings64.sh")
 (defvar hog-number-of-jobs 4)
 
-(setq hog-template-xml-path
+(defvar hog-template-xml-path
       (concat (file-name-directory hog-vivado-path) "data/parts/xilinx/templates/vivado/"))
 
-(defvar hog-template-vhdl-xml-path (concat hog-template-xml-path "vhdl.xml"))
-(defvar hog-template-verilog-xml-path (concat hog-template-xml-path "verilog.xml"))
-(defvar hog-template-systemverilog-xml-path (concat hog-template-xml-path "systemverilog.xml"))
-(defvar hog-template-xdc-xml-path (concat hog-template-xml-path "xdc.xml"))
-
 (defvar hog-template-cache-dir "~/.emacs.d/")
-
-(setq hog-template-vhdl-cache (concat hog-template-cache-dir "/vhdl.json")
-      hog-template-verilog-cache (concat hog-template-cache-dir "/verilog.json")
-      hog-template-systemverilog-cache (concat hog-template-cache-dir "/systemverilog.json")
-      hog-template-xdc-cache (concat hog-template-cache-dir "/xdc.json"))
 
 (defun hog--get-projects ()
   "Get a list of available Hog projects."
@@ -477,18 +467,10 @@ Parses the PPR file into a list of libraries and their sources."
             (string-join x " -> ")) templates))
 
 (defun hog--template-cache (lang)
-  (pcase lang
-    ('vhdl hog-template-vhdl-cache)
-    ('verilog hog-template-verilog-cache)
-    ('systemverilog hog-template-systemverilog-cache)
-    ('xdc hog-template-xdc-cache)))
+  (concat hog-template-cache-dir "/" (symbol-name lang) ".json"))
 
 (defun hog--template-xml-path (lang)
-  (pcase lang
-    ('vhdl hog-template-vhdl-xml-path)
-    ('verilog hog-template-verilog-xml-path)
-    ('systemverilog hog-template-systemverilog-xml-path)
-    ('xdc hog-template-xdc-xml-path)))
+  (concat hog-template-xml-path "/" (symbol-name lang) ".xml"))
 
 (defun hog--get-templates (lang)
 
