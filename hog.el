@@ -42,8 +42,19 @@
 
 (defvar hog-vivado-path "/opt/Xilinx/Vivado/2021.1/settings64.sh")
 (defvar hog-number-of-jobs 4)
-(defvar hog-template-cache "~/.emacs.d/vhdl.json")
-(defvar hog-template-xml-path "/opt/Xilinx/Vivado/2020.2/data/parts/xilinx/templates/vivado/vhdl.xml")
+
+(setq hog-template-xml-path
+      (concat (file-name-directory hog-vivado-path) "data/parts/xilinx/templates/vivado/"))
+
+(defvar hog-template-vhdl-xml-path (concat hog-template-xml-path "vhdl.xml"))
+(defvar hog-template-verilog-xml-path (concat hog-template-xml-path "verilog.xml"))
+(defvar hog-template-xdc-xml-path (concat hog-template-xml-path "xdc.xml"))
+
+(defvar hog-template-cache-dir "~/.emacs.d/")
+
+(setq hog-template-vhdl-cache (concat hog-template-cache-dir "/vhdl.json")
+      hog-template-verilog-cache (concat hog-template-cache-dir "/verilog.json")
+      hog-template-xdc-cache (concat hog-template-cache-dir "/xdc.json"))
 
 (defun hog--get-projects ()
   "Get a list of available Hog projects."
@@ -103,7 +114,8 @@ executed, and DOCSTRING will be passed into the generated function."
 (hog--create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -njobs %d" hog-number-of-jobs) "Launch Project Full Workflow")
 
 ;; TODO: check if the xml file exists, prompt to create if it doesn't
-(hog--project-do! hog-open-project
+(hog--project-do!
+ hog-open-project
  "Open the Hog PROJECT."
  (progn
    (let ((project-file (hog--get-project-xml project)))
@@ -465,13 +477,14 @@ Parses the PPR file into a list of libraries and their sources."
 (defun hog--get-vhdl-templates ()
 
   ;; if the cache file does not exist, create it
-  (when (not  (file-exists-p hog-template-cache))
-    (with-temp-file hog-template-cache
-      (insert (json-encode (cons "Templates" (hog--walk-vivado-template-xml hog-template-xml-path))))))
+  (when (not  (file-exists-p hog-template-vhdl-cache))
+    (with-temp-file hog-template-vhdl-cache
+      (insert (json-encode
+               (cons "Templates" (hog--walk-vivado-template-xml hog-template-vhdl-xml-path))))))
 
   ;; else read the cache file
   (let ((json-array-type 'list))
-    (cdr (json-read-file hog-template-cache))))
+    (cdr (json-read-file hog-template-vhdl-cache))))
 
 (defun hog--vivado-decend-template (nodes path)
 
@@ -501,7 +514,7 @@ Parses the PPR file into a list of libraries and their sources."
   (message (concat "Inserting: " template))
   (let ((template-text
          (hog--vivado-decend-template
-          (assq 'RootFolder (xml-parse-file hog-template-xml-path))
+          (assq 'RootFolder (xml-parse-file hog-template-vhdl-xml-path))
           (s-split " -> " template))))
 
     ;; replace trailing tabs and insert the template
