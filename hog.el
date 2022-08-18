@@ -41,9 +41,6 @@
 (defvar hog-vivado-path "/opt/Xilinx/Vivado/2021.1/settings64.sh")
 (defvar hog-number-of-jobs 4)
 
-(defvar hog-template-xml-path
-  (concat (file-name-directory hog-vivado-path) "data/parts/xilinx/templates/vivado/"))
-
 (defvar hog-template-cache-dir user-emacs-directory)
 
 (defun hog--project-root ()
@@ -443,6 +440,10 @@ Parses the PPR file into a list of libraries and their sources."
   ;; docstring
   "Major mode for Hog src files")
 
+;;------------------------------------------------------------------------------
+;; Vivado Template Insertion
+;;------------------------------------------------------------------------------
+
 (cl-defun hog--vivado-collect-templates (nodes &key components parents)
   "Collect a list of all Vivado templates from xml NODES.
 It is called recursively, tracking the collective COMPONENTS and
@@ -486,7 +487,9 @@ It joins together the path into a single string with separated by arrows."
 
 (defun hog--template-xml-path (lang)
   "Return the path of the vivado xml template file for a given LANG."
-  (concat hog-template-xml-path "/" (symbol-name lang) ".xml"))
+  (concat (file-name-directory hog-vivado-path)
+          "data/parts/xilinx/templates/vivado/"
+          "/" (symbol-name lang) ".xml"))
 
 (defun hog--get-templates (lang)
   "Return the template list for a given LANG.
