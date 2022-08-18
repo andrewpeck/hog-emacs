@@ -2,17 +2,16 @@
 
 (require 'hog)
 (require 'ert)
-(require 'projectile)
 
 (ert-deftest test-get-project-xml ()
 
   (should (equal
            (expand-file-name (hog--get-project-xml "oh_ge11"))
-           (expand-file-name (concat (projectile-project-root) "/Projects/oh_ge11/oh_ge11.ppr"))))
+           (expand-file-name (concat (hog--project-root) "/Projects/oh_ge11/oh_ge11.ppr"))))
 
   (should (equal
            (expand-file-name (hog--get-project-xml "test"))
-           (expand-file-name (concat (projectile-project-root) "/Projects/test/test.xpr")))))
+           (expand-file-name (concat (hog--project-root) "/Projects/test/test.xpr")))))
 
 (ert-deftest test-parse-project-ppr ()
   (should (equal 1 1)))

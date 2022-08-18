@@ -5,7 +5,7 @@
 ;; Author: Andrew Peck <andrew.peck@cern.ch>
 ;; URL: https://github.com/andrewpeck/hog-emacs
 ;; Version: 0.0.0
-;; Package-Requires: ((projectile "2.2") (s "1.0") (emacs "27.1"))
+;; Package-Requires: ((s "1.0") (emacs "27.1"))
 ;; Keywords: tools vhdl fpga
 ;;
 ;; This file is not part of GNU Emacs.
@@ -36,7 +36,6 @@
 ;; TODO: add a create-and-open command
 
 (require 'xml)
-(require 'projectile)
 (require 's)
 
 (defvar hog-vivado-path "/opt/Xilinx/Vivado/2021.1/settings64.sh")
@@ -47,6 +46,18 @@
 
 (defvar hog-template-cache-dir user-emacs-directory)
 
+(defun hog--project-root ()
+  (if (functionp 'projectile-project-root)
+      (projectile-project-root)
+    (let ((vc-base-path nil)
+          (filepath (file-name-directory (buffer-file-name))))
+      (condition-case err
+          (let ((vc-backend (ignore-errors (vc-responsible-backend filepath))))
+            (when vc-backend
+              (setq vc-base-path (vc-call-backend vc-backend 'root filepath))))
+        (error (message "Error creating vc-backend root name: %s" err)))
+      vc-base-path)))
+
 (defun hog--get-projects ()
   "Get a list of available Hog projects."
   ;; convert the full directory into the path, e.g.
@@ -54,16 +65,16 @@
   (mapcar (lambda (file) (file-name-nondirectory (directory-file-name
                                                   (expand-file-name (concat file "/..")))))
           ;; list all directories in the Top/ folder
-          (if (file-directory-p (format "%sTop" (projectile-project-root)))
+          (if (file-directory-p (format "%sTop" (hog--project-root)))
               (sort (split-string
                      (shell-command-to-string
                       (format
                        "find %sTop -name hog.conf -type f -or -name *.src -type f"
-                       (projectile-project-root)))) #'string<))))
+                       (hog--project-root)))) #'string<))))
 
 (defun hog--get-project-xml (project)
   "Return the XML (XPR) file for a given Hog PROJECT."
-  (let* ((base  (format "%sProjects/%s/%s" (projectile-project-root) project project))
+  (let* ((base  (format "%sProjects/%s/%s" (hog--project-root) project project))
          (xpr (format "%s.xpr" base))
          (ppr (format "%s.ppr" base)))
     (cond
@@ -113,7 +124,7 @@ executed, and DOCSTRING will be passed into the generated function."
      (if (and project-file (file-exists-p project-file))
          (progn
            (let ((command (format "cd %s && source %s && vivado %s &"
-                                  (projectile-project-root)
+                                  (hog--project-root)
                                   hog-vivado-path
                                   project-file)))
              (message (format "Opening Hog Project %s" project))
@@ -130,11 +141,11 @@ colorize it using CCZE, with the Hog arguments ARGS."
 
     ;; construct the output command
     (let ((cmd-str (format "cd %s && source %s && %s | tee hog.log %s"
-                           (projectile-project-root) ;; cd %s
+                           (hog--project-root) ;; cd %s
                            hog-vivado-path           ;; source vivado
                            (concat
                             ;; path/Hog/Launch{X}.sh project <args>
-                            (projectile-project-root) command " " project " " (string-join args " "))
+                            (hog--project-root) command " " project " " (string-join args " "))
                            ;; optional ccze
                            (if (executable-find "ccze") " | ccze -A" ""))))
       ;; ... and run it
@@ -247,7 +258,7 @@ Parses the PPR file into a list of libraries and their sources."
 (hog--project-do!
  hog-vhdl-tool-create-project-yaml
  "Create a VHDL-tool yaml file for a Hog PROJECT"
- (with-temp-file (format "%s/vhdltool-config.yaml" (projectile-project-root))
+ (with-temp-file (format "%s/vhdltool-config.yaml" (hog--project-root))
    (progn
      (insert
       (json-encode
@@ -295,7 +306,7 @@ Parses the PPR file into a list of libraries and their sources."
  hog-vhdl-ls-create-project-toml
  "Create a VHDL-tool yaml file for a Hog PROJECT"
  (let ((yaml (hog--vhdl-ls-parse-libs (hog--parse-project-xml project))))
-   (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (projectile-project-root)))))
+   (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (hog--project-root)))))
 
 ;;------------------------------------------------------------------------------
 ;; GHDL-LS JSON Project File Creation
@@ -338,7 +349,7 @@ Parses the PPR file into a list of libraries and their sources."
  hog-ghdl-ls-create-project-json
  "Create GHDL-LS Json File"
  (if (not (string-equal project ""))
-     (progn (let ((output-file (format "%shdl-prj.json" (projectile-project-root)))
+     (progn (let ((output-file (format "%shdl-prj.json" (hog--project-root)))
                   (files (apply #'append (mapcar #'cadr (hog--parse-project-xml project)))))
               (with-temp-file output-file
                 (progn (insert (json-encode (append (list hog--ghdl-ls-options)
@@ -379,7 +390,7 @@ Parses the PPR file into a list of libraries and their sources."
       ;;  probably shouldn't open if its a normal link, use link-hint-open-link
       ;;  else
       (let ((file-with-path
-             (concat (projectile-project-root) filename)))
+             (concat (hog--project-root) filename)))
         (when (file-exists-p file-with-path)
           (find-file file-with-path))))))
 
