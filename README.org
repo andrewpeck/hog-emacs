@@ -34,6 +34,6 @@ You should customize these variables to your liking, e.g.
 #+begin_src  elisp
 (setq hog-vivado-path "/opt/Xilinx/Vivado/2020.2/settings64.sh"
       hog-number-of-jobs 4
-      hog-template-cache-dir "~/.emacs.d/"
-      hog-template-xml-path "/opt/Xilinx/Vivado/2020.2/data/parts/xilinx/templates/vivado/")
+      hog-template-cache-dir "~/.emacs.d/")
+
 #+end_src
