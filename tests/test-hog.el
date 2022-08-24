@@ -1,4 +1,4 @@
-;;; ../Sync/dotfiles/doom.d/lisp/hog-emacs/tests/test-hog.el -*- lexical-binding: t; -*-
+;;; test-hog.el -*- lexical-binding: t; -*-
 
 (require 'hog)
 (require 'ert)
