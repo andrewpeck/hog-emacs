@@ -301,7 +301,7 @@ Parses the PPR file into a list of libraries and their sources."
 
 (hog--project-do!
  hog-vhdl-ls-create-project-toml
- "Create a VHDL-tool yaml file for a Hog PROJECT"
+ "Create a VHDL-ls yaml file for a Hog PROJECT"
  (let ((yaml (hog--vhdl-ls-parse-libs (hog--parse-project-xml project))))
    (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (hog--project-root)))))
 
