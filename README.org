@@ -26,6 +26,10 @@ source found in your vivado path.
 - ~hog-insert-systemverilog-template~
 - ~hog-insert-xdc-template~
 
+Some miscellaneous functions are included as well:
+
+- ~hog-clean-vivado-xci~: cleans the output products associated with Vivado XCI files
+
 This package also includes a major mode which provides syntax highlighting for Hog source files, and
 enables the M-RET key to follow files as links.
 
@@ -35,5 +39,4 @@ You should customize these variables to your liking, e.g.
 (setq hog-vivado-path "/opt/Xilinx/Vivado/2020.2/settings64.sh"
       hog-number-of-jobs 4
       hog-template-cache-dir "~/.emacs.d/")
-
 #+end_src
