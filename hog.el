@@ -37,6 +37,7 @@
 
 (require 'xml)
 (require 's)
+(require 'cl-lib)
 
 (defvar hog-vivado-path "/opt/Xilinx/Vivado/2021.1/settings64.sh")
 (defvar hog-number-of-jobs 4)
