@@ -46,6 +46,7 @@
 (defvar hog-template-cache-dir user-emacs-directory)
 
 (defun hog--project-root ()
+  "Get the root of the current version controlled project."
   (if (functionp 'projectile-project-root)
       (projectile-project-root)
     (let ((vc-base-path nil)
@@ -444,7 +445,7 @@ Parses the PPR file into a list of libraries and their sources."
   "Major mode for Hog src files")
 
 (defun hog-clean-vivado-xci ()
-  "Clean the output products of Vivado XCI Files"
+  "Clean the output products of Vivado XCI Files."
   (interactive)
 
   (let ((file-count 0)
