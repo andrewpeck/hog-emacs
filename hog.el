@@ -440,6 +440,45 @@ Parses the PPR file into a list of libraries and their sources."
   ;; docstring
   "Major mode for Hog src files")
 
+(defun hog-clean-vivado-xci ()
+  "Clean the output products of Vivado XCI Files"
+  (interactive)
+
+  (let ((file-count 0)
+        (file-size 0))
+
+    (let ((xci-files
+           (split-string
+            (shell-command-to-string
+             (concat  "find " (hog--project-root) " -name *.xci")) "\n" t)))
+      (dolist (xci xci-files)
+        (let ((file-name-noext (file-name-sans-extension xci))
+              (dirname (file-name-directory xci)))
+
+          (let ((files-to-remove
+                 (append
+                  (mapcar (lambda (x) (concat file-name-noext x))
+                          '(".dcp" ".veo" ".vho" ".xml" "_sim_netlist.v"
+                            "_ooc.xdc" "_sim_netlist.vhdl" "_stub.v" "_stub.vhdl")))))
+            (dolist (file files-to-remove)
+              (when (file-exists-p file)
+                (setq file-count (+ 1 file-count))
+                (setq file-size (+ (file-attribute-size (file-attributes file)) file-size))
+                (princ (format "Removing %s\n" file))
+                (delete-file file))))
+
+          (let ((directories-to-remove
+                 (append (mapcar (lambda (x) (concat dirname x))
+                                 '("hdl" "synth" "doc" "sim" "ila_v6_2")))))
+            (dolist (file directories-to-remove)
+              (when (file-exists-p file)
+                (setq file-count (+ (string-to-number (shell-command-to-string (concat  "find " file " | wc -l"))) file-count))
+                (setq file-size (+ (string-to-number (car (split-string  (shell-command-to-string (concat  "du " file))))) file-size))
+                (princ (format "Removing %s\n" file))
+                (delete-directory file t)))))))
+
+    (princ (format  "Removed %d files, %f Mb" file-count (/ file-size 1000000)))))
+
 ;;------------------------------------------------------------------------------
 ;; Vivado Template Insertion
 ;;------------------------------------------------------------------------------
