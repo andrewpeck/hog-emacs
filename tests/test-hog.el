@@ -13,6 +13,10 @@
            (expand-file-name (hog--get-project-xml "test"))
            (expand-file-name (concat (hog--project-root) "/Projects/test/test.xpr")))))
 
+(ert-deftest test-hog-project-root ()
+  (should (stringp
+           (hog--project-root))))
+
 (ert-deftest test-parse-project-ppr ()
   (should (equal 1 1)))
 

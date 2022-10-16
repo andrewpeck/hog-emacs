@@ -49,7 +49,7 @@
   (if (functionp 'projectile-project-root)
       (projectile-project-root)
     (let ((vc-base-path nil)
-          (filepath (file-name-directory (buffer-file-name))))
+          (filepath (pwd)))
       (condition-case err
           (let ((vc-backend (ignore-errors (vc-responsible-backend filepath))))
             (when vc-backend
@@ -78,7 +78,8 @@
          (ppr (format "%s.ppr" base)))
     (cond
      ((file-exists-p xpr) xpr)
-     ((file-exists-p ppr) ppr))))
+     ((file-exists-p ppr) ppr)
+     (t (error (format  "Project %s XML not found!" project))))))
 
 (defmacro hog--project-do! (name docstring body)
   "Macro to create an arbitrary Hog interactive command.
