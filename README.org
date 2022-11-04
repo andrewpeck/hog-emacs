@@ -10,6 +10,7 @@ projects from emacs.
 - ~hog-launch-workflow~
 - ~hog-open-project~
 - ~hog-follow-link-at-point~
+- ~hog-expand-glob-at-point~
 
 It also includes facilities for creating configuration files from Hog projects
 for various HDL language servers:

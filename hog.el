@@ -395,9 +395,36 @@ Parses the PPR file into a list of libraries and their sources."
         (when (file-exists-p file-with-path)
           (find-file file-with-path))))))
 
-(defvar hog-src-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "M-RET") #'hog-follow-link-at-point) map)
+(defun hog-expand-glob-at-point ()
+  "When pointed at a globbed (wildcard) in a source file, this
+function will unglob it and insert the explicit list of all files
+in thath path"
+  (interactive)
+  (save-excursion
+    (let ((filename
+           (progn
+             (thing-at-point-looking-at hog--file-name-re)
+             (match-string-no-properties 1))))
+
+      (let ((file-with-path
+             (concat (hog--project-root) filename)))
+
+        (print filename)
+        (print file-with-path)
+        (print (hog--project-root))
+
+        (end-of-line)
+        (newline)
+
+        (let* ((files (file-expand-wildcards  file-with-path nil))
+               (files-relative
+                (mapcar (lambda (x) (s-replace (hog--project-root) ""  x)) files)))
+
+          (insert (apply #'concat
+                         (mapcar (lambda (x) (concat x "\n"))
+                                 files-relative))))))))
+
+(defvar hog-src-mode-map (make-sparse-keymap)
   "Keymap for `hog-src-mode'.")
 
 (define-generic-mode 'hog-src-mode
