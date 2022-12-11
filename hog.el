@@ -429,6 +429,8 @@ in thath path"
 (defvar hog-src-mode-map (make-sparse-keymap)
   "Keymap for `hog-src-mode'.")
 
+(define-key hog-src-mode-map (kbd "M-RET") #'hog-follow-link-at-point)
+
 (define-generic-mode 'hog-src-mode
   ;; comment list
   '("#")
