@@ -36,6 +36,8 @@
 ;; TODO: add a create-and-open command
 
 (require 'xml)
+(require 'subr-x)
+(require 'json)
 (require 's)
 (require 'cl-lib)
 (require 'thingatpt)
