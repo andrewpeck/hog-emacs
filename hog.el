@@ -38,7 +38,6 @@
 (require 'xml)
 (require 'subr-x)
 (require 'json)
-(require 's)
 (require 'cl-lib)
 (require 'thingatpt)
 
@@ -179,6 +178,7 @@ colorize it using CCZE, with the Hog arguments ARGS."
       ;; for each node, extract the path to the .src file
       (let ((src-file
              ;; strip off the vivado relative path; make it relative to the repo root instead
+             ;; (regexp-quote "$PPRDIR/../../")
              (replace-regexp-in-string "$PPRDIR\/\.\.\/\.\.\/" "" (xml-get-attribute file-node 'Path ))))
         ;; for each node, extract the library property (only applies to vhdl sources)
         (dolist (attr (xml-get-children (assq 'FileInfo (cdr file-node)) 'Attr))
@@ -208,7 +208,6 @@ Parses the PPR file into a list of libraries and their sources."
   (let ((lib (assoc lib-name src-list)))
     (when (eq lib nil)
       (setf src-list (append src-list (list (list lib-name (list)))))
-      ;;(print src-list)
       (setq lib (assoc lib-name src-list)))
     (setf (cadr lib) (append (cadr lib) (list file-name) )))
   src-list)
@@ -383,22 +382,24 @@ Parses the PPR file into a list of libraries and their sources."
 (defvar hog--src-symbols-list
   '("locked" "93" "nosynth" "noimpl" "nosim" "source" "SystemVerilog" "verilog_header" "XDC"))
 
+(defun hog--get-link-at-point ()
+  (let ((inhibit-message t))
+    (let ((filename
+           (progn
+             (thing-at-point-looking-at hog--file-name-re)
+             (match-string-no-properties 1))))
+      (concat (hog--project-root)
+              filename))))
+
 ;; FIXME: does not work with file names with spaces
 ;; spaces should be escaped
 (defun hog-follow-link-at-point ()
   "Follow the Hog source file at point."
   (interactive)
-  (save-excursion
-    (let ((filename
-           (progn
-             (thing-at-point-looking-at hog--file-name-re)
-             (match-string-no-properties 1))))
-      ;;  probably shouldn't open if its a normal link, use link-hint-open-link
-      ;;  else
-      (let ((file-with-path
-             (concat (hog--project-root) filename)))
-        (when (file-exists-p file-with-path)
-          (find-file file-with-path))))))
+  ;; TODO: check if the file contains a wildcard suffix, if so open it as a directory
+  (let ((file-with-path (hog--get-link-at-point)))
+    (when (file-exists-p file-with-path)
+      (find-file file-with-path))))
 
 (defun hog-expand-glob-at-point ()
   "Unglob a globbed entry in a source file.
@@ -415,16 +416,12 @@ in that path"
       (let ((file-with-path
              (concat (hog--project-root) filename)))
 
-        (print filename)
-        (print file-with-path)
-        (print (hog--project-root))
-
         (end-of-line)
         (newline)
 
         (let* ((files (file-expand-wildcards  file-with-path nil))
                (files-relative
-                (mapcar (lambda (x) (s-replace (hog--project-root) ""  x)) files)))
+                (mapcar (lambda (x) (replace-regexp-in-string (hog--project-root) ""  x)) files)))
 
           (insert (apply #'concat
                          (mapcar (lambda (x) (concat x "\n"))
@@ -616,10 +613,10 @@ template at a specific PATH."
     (let ((template-text
            (hog--vivado-decend-template
             (assq 'RootFolder (xml-parse-file (hog--template-xml-path lang)))
-            (s-split " -> " template))))
+            (split-string template " -> "))))
 
       ;; replace trailing tabs and insert the template
-      (insert (s-replace-regexp "[[:blank:]]*$" "" template-text)))))
+      (insert (replace-regexp-in-string "[[:blank:]]*$" "" template-text)))))
 
 (defun hog-insert-vhdl-template ()
   "Insert a vivado vhdl template."
@@ -636,6 +633,36 @@ template at a specific PATH."
 (defun hog-insert-systemverilog-template ()
   "Insert a vivado systemverilog template."
   (interactive (hog--insert-template 'systemverilog)))
+
+(defun hog-check-src-file ()
+  "Check a Hog source file for broken links"
+  (let ((errors 0))
+    (save-excursion
+      (while (= 0 (forward-line))
+        (let* ((link (hog--get-link-at-point))
+               (link-is-glob (file-expand-wildcards link))
+               (link-exists (file-exists-p link)))
+          (print link-is-glob)
+          (when (not (or link-exists link-is-glob))
+            (setq errors (+ 1 errors))
+            (princ (format "Error:%d %s not found\n" (line-number-at-pos) link)))))) errors))
+
+(when (macrop 'flycheck-define-checker)
+
+  (flycheck-define-checker hog-src-checker
+    ""
+    :command ("emacs" (eval flycheck-emacs-args)
+              "--load" (eval (file-name-sans-extension (locate-library "hog")))
+              "--visit" source-inplace
+              "-f" "hog-check-src-file")
+
+    :error-patterns
+    ((error line-start "Error:" line " " (message) line-end)
+     (warning line-start "Info:" line " " (message) line-end))
+    :modes (hog-src-mode)))
+
+(when (boundp 'flycheck-checkers)
+  (add-to-list 'flycheck-checkers 'hog-src-checker))
 
 (provide 'hog)
 ;;; hog.el ends here
