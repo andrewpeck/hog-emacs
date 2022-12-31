@@ -398,9 +398,10 @@ Parses the PPR file into a list of libraries and their sources."
           (find-file file-with-path))))))
 
 (defun hog-expand-glob-at-point ()
-  "When pointed at a globbed (wildcard) in a source file, this
+  "Unglob a globbed entry in a source file.
+When pointed at a globbed (wildcard) in a source file, this
 function will unglob it and insert the explicit list of all files
-in thath path"
+in that path"
   (interactive)
   (save-excursion
     (let ((filename
@@ -635,4 +636,4 @@ template at a specific PATH."
 
 (provide 'hog)
 ;;; hog.el ends here
-;; LocalWords:  xml vivado vhdl verilog systemverilog stringifies
+;; LocalWords:  xml vivado vhdl verilog systemverilog stringifies globbed unglob
