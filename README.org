@@ -59,7 +59,8 @@ To have flycheck integration please add the following snippet to your configurat
 
     :error-patterns
     ((error line-start "Error:" line " " (message) line-end)
-     (warning line-start "Info:" line " " (message) line-end))
+     (info line-start "Info:" line " " (message) line-end)
+     (warning line-start "Warning:" line " " (message) line-end))
     :modes (hog-src-mode))
 
   (add-to-list 'flycheck-checkers 'hog-src-checker)
