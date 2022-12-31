@@ -4,13 +4,12 @@
 A collection of functions for working with Hog ([[https://hog.readthedocs.io/][https://hog.readthedocs.io]])
 projects from emacs.
 
-- ~hog-open-project~
-- ~hog-launch-impl~
-- ~hog-launch-synthesis~
-- ~hog-launch-workflow~
-- ~hog-open-project~
-- ~hog-follow-link-at-point~
-- ~hog-expand-glob-at-point~
+| ~hog-open-project~         | Open a Hog project in Vivado        |
+| ~hog-launch-impl~          | Launch Implementation               |
+| ~hog-launch-synthesis~     | Launch Synthesis                    |
+| ~hog-launch-workflow~      | Launch Full Workflow                |
+| ~hog-follow-link-at-point~ | Follow a link in a Hog src file     |
+| ~hog-expand-glob-at-point~ | Expand a "*" glob in a Hog src file |
 
 It also includes facilities for creating configuration files from Hog projects
 for various HDL language servers:
