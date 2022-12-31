@@ -64,15 +64,18 @@
   "Get a list of available Hog projects."
   ;; convert the full directory into the path, e.g.
   ;; /home/topham/project/Top/myproject --> myproject
-  (mapcar (lambda (file) (file-name-nondirectory (directory-file-name
-                                                  (expand-file-name (concat file "/..")))))
-          ;; list all directories in the Top/ folder
-          (if (file-directory-p (format "%sTop" (hog--project-root)))
-              (sort (split-string
-                     (shell-command-to-string
-                      (format
-                       "find %sTop -name hog.conf -type f -or -name *.src -type f"
-                       (hog--project-root)))) #'string<))))
+
+  ;; list all directories in the Top/ folder
+  (let* ((hog-top-folder (format "%sTop" (hog--project-root))))
+    (when (file-directory-p hog-top-folder)
+      (sort (split-string
+             (replace-regexp-in-string
+              "/hog.conf" ""
+              (replace-regexp-in-string
+               (concat  hog-top-folder "/") ""
+               (shell-command-to-string
+                (format "find %s -name hog.conf -type f" hog-top-folder)))))
+            #'string<))))
 
 (defun hog--get-project-xml (project)
   "Return the XML (XPR) file for a given Hog PROJECT."
