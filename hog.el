@@ -134,7 +134,7 @@ executed, and DOCSTRING will be passed into the generated function."
                                   hog-vivado-path
                                   project-file)))
              (message (format "Opening Hog Project %s" project))
-             (async-shell-command command)))
+             (start-process "*vivado*" nil "setsid" command)))
        (message (format "Project file %s not found!" project-file))))))
 
 (defun hog--run-command (command project &rest args)
