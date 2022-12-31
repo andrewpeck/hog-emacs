@@ -650,4 +650,4 @@ template at a specific PATH."
 
 (provide 'hog)
 ;;; hog.el ends here
-;; LocalWords:  xml vivado vhdl verilog systemverilog stringifies globbed unglob
+;; LocalWords:  xml vivado vhdl verilog systemverilog stringifies globbed unglob SRC
