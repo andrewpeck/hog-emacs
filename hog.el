@@ -5,7 +5,7 @@
 ;; Author: Andrew Peck <andrew.peck@cern.ch>
 ;; URL: https://github.com/andrewpeck/hog-emacs
 ;; Version: 0.0.0
-;; Package-Requires: ((s "1.0") (emacs "27.1"))
+;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: tools vhdl fpga
 ;;
 ;; This file is not part of GNU Emacs.
@@ -383,6 +383,7 @@ Parses the PPR file into a list of libraries and their sources."
   '("locked" "93" "nosynth" "noimpl" "nosim" "source" "SystemVerilog" "verilog_header" "XDC"))
 
 (defun hog--get-link-at-point ()
+  "Return the link at point in a Hog src file."
   (let ((inhibit-message t))
     (let ((filename
            (progn
@@ -635,7 +636,7 @@ template at a specific PATH."
   (interactive (hog--insert-template 'systemverilog)))
 
 (defun hog-check-src-file ()
-  "Check a Hog source file for broken links"
+  "Check a Hog source file for broken links."
   (let ((errors 0))
     (save-excursion
       (while (= 0 (forward-line))
