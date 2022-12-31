@@ -34,6 +34,10 @@ Some miscellaneous functions are included as well:
 This package also includes a major mode which provides syntax highlighting for Hog source files, and
 enables the M-RET key to follow files as links.
 
+With flycheck installed it will also provide error indicators for files with broken links.
+
+[[file:doc/hog-src-mode.png]]
+
 You should customize these variables to your liking, e.g.
 
 #+begin_src  elisp
