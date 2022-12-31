@@ -44,3 +44,24 @@ You should customize these variables to your liking, e.g.
       hog-number-of-jobs 4
       hog-template-cache-dir "~/.emacs.d/")
 #+end_src
+
+To have flycheck integration please add the following snippet to your configuration.
+
+#+begin_src elisp
+  (flycheck-define-checker
+      hog-src-checker
+    "Checker for Hog source files"
+
+    :command ("emacs" (eval flycheck-emacs-args)
+              "--load" (eval (file-name-sans-extension (locate-library "hog")))
+              "--visit" source-inplace
+              "-f" "hog-check-src-file")
+
+    :error-patterns
+    ((error line-start "Error:" line " " (message) line-end)
+     (warning line-start "Info:" line " " (message) line-end))
+    :modes (hog-src-mode))
+
+  (add-to-list 'flycheck-checkers 'hog-src-checker)
+#+end_src
+

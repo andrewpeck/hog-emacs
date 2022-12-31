@@ -648,24 +648,6 @@ template at a specific PATH."
             (setq errors (+ 1 errors))
             (princ (format "Error:%d %s not found\n" (line-number-at-pos) link)))))) errors))
 
-(when (macrop 'flycheck-define-checker)
-
-  (flycheck-define-checker
-   hog-src-checker
-   "Checker for Hog source files"
-   :command ("emacs" (eval flycheck-emacs-args)
-             "--load" (eval (file-name-sans-extension (locate-library "hog")))
-             "--visit" source-inplace
-             "-f" "hog-check-src-file")
-
-   :error-patterns
-   ((error line-start "Error:" line " " (message) line-end)
-    (warning line-start "Info:" line " " (message) line-end))
-   :modes (hog-src-mode)))
-
-(when (boundp 'flycheck-checkers)
-  (add-to-list 'flycheck-checkers 'hog-src-checker))
-
 (provide 'hog)
 ;;; hog.el ends here
 ;; LocalWords:  xml vivado vhdl verilog systemverilog stringifies globbed unglob
