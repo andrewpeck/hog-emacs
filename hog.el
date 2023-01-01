@@ -453,25 +453,7 @@ in that path"
   ;; function list
   (list
    (lambda ()
-
-     ;; The syntax is changed only for table SYNTAX-TABLE, which defaults to
-     ;; the current buffer's syntax table.
-     ;; CHAR may be a cons (MIN . MAX), in which case, syntaxes of all characters
-     ;; in the range MIN to MAX are changed.
-     ;;
-     ;;  Space or -  whitespace syntax.    w   word constituent.
-     ;;  _           symbol constituent.   .   punctuation.
-     ;;  (           open-parenthesis.     )   close-parenthesis.
-     ;;  "           string quote.         \   escape.
-     ;;  $           paired delimiter.     '   expression quote or prefix operator.
-     ;;  <           comment starter.      >   comment ender.
-     ;;  /           character-quote.      @   inherit from parent table.
-     ;;  |           generic string fence. !   generic comment fence.
-
-     ;; Treat these characters as punctuation, meaning that
-     ;; e.g. "|KEYWORD" is treated similarly to "KEYWORD".
-     (modify-syntax-entry ?= ".")
-
+     ;; (modify-syntax-entry ?= ".")
      (use-local-map hog-src-mode-map)))
 
   ;; docstring
@@ -576,7 +558,8 @@ JSON file if it does not exist."
   (when (not  (file-exists-p (hog--template-cache lang)))
     (with-temp-file (hog--template-cache lang)
       (insert (json-encode
-               (cons "Templates" (hog--walk-vivado-template-xml (hog--template-xml-path lang)))))))
+               (cons "Templates" (hog--walk-vivado-template-xml
+                                  (hog--template-xml-path lang)))))))
 
   ;; else read the cache file
   (let ((json-array-type 'list))
