@@ -40,11 +40,16 @@ With flycheck installed it will also provide error indicators for files with bro
 You should customize these variables to your liking, e.g.
 
 #+begin_src  elisp
-(setq hog-vivado-path "/opt/Xilinx/Vivado/2020.2/settings64.sh"
-      hog-number-of-jobs 4
+(setq hog-vivado-path        "/opt/Xilinx/Vivado/2020.2"
+      hog-number-of-jobs     4
       hog-template-cache-dir "~/.emacs.d/")
 #+end_src
 
+Configuration variables can be set on a per-project basis, e.g. by adding the following to ~.dir-locals.el~.
+
+#+begin_src elisp
+((nil . ((hog-vivado-path . "/storage/Xilinx/Vivado/2020.1"))))
+#+end_src
 To have flycheck integration please add the following snippet to your configuration.
 
 #+begin_src elisp

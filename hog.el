@@ -51,6 +51,9 @@ Can be set in dir-locals to be changed on a per-project basis.")
 (defvar hog-template-cache-dir user-emacs-directory
   "Directory in which to cache Vivado templates.")
 
+(defun hog--check-for-vivado ()
+  (when (not (file-exists-p hog-vivado-path))
+    (error (concat "Vivado not found at " hog-vivado-path))))
 
 (defun hog--project-root ()
   "Get the root of the current version controlled project."
@@ -131,12 +134,13 @@ executed, and DOCSTRING will be passed into the generated function."
  hog-open-project
  "Open the Hog PROJECT."
  (progn
+   (hog--check-for-vivado)
    (let ((project-file (hog--get-project-xml project)))
      (if (and project-file (file-exists-p project-file))
          (progn
            (let ((command (format "cd %s && source %s && vivado %s &"
                                   (hog--project-root)
-                                  hog-vivado-path
+                                  (concat  hog-vivado-path "/settings64.sh")
                                   project-file)))
              (message (format "Opening Hog Project %s" project))
              (start-process "*vivado*" nil "setsid" command)))
@@ -147,13 +151,14 @@ executed, and DOCSTRING will be passed into the generated function."
 
 colorize it using CCZE, with the Hog arguments ARGS."
 
+  (hog--check-for-vivado)
   (let* ((name (format "%s" command))
          (buf (format "*%s*" name)))
 
     ;; construct the output command
     (let ((cmd-str (format "cd %s && source %s && %s | tee hog.log %s"
                            (hog--project-root) ;; cd %s
-                           hog-vivado-path           ;; source vivado
+                           (concat  hog-vivado-path "/settings64.sh") ;; source vivado
                            (concat
                             ;; path/Hog/Launch{X}.sh project <args>
                             (hog--project-root) command " " project " " (string-join args " "))
@@ -230,7 +235,7 @@ Parses the PPR file into a list of libraries and their sources."
 (defvar hog-unisim-library
   `("unisim" (
               ,(format "%sdata/vhdl/src/unisims/unisim_VCOMP.vhd"
-                       (file-name-directory hog-vivado-path)))))
+                       hog-vivado-path))))
 
 ;;------------------------------------------------------------------------------
 ;; VHDL Tool YAML Config Generation
@@ -551,8 +556,8 @@ It joins together the path into a single string with separated by arrows."
 
 (defun hog--template-xml-path (lang)
   "Return the path of the vivado xml template file for a given LANG."
-  (concat (file-name-directory hog-vivado-path)
-          "data/parts/xilinx/templates/vivado/"
+  (concat hog-vivado-path
+          "/data/parts/xilinx/templates/vivado/"
           "/" (symbol-name lang) ".xml"))
 
 (defun hog--get-templates (lang)
