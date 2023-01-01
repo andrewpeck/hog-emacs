@@ -41,10 +41,16 @@
 (require 'cl-lib)
 (require 'thingatpt)
 
-(defvar hog-vivado-path "/opt/Xilinx/Vivado/2021.1/settings64.sh")
-(defvar hog-number-of-jobs 4)
+(defvar hog-vivado-path "/opt/Xilinx/Vivado/2021.1"
+  "Path to the Xilinx Vivado installation.
+Can be set in dir-locals to be changed on a per-project basis.")
 
-(defvar hog-template-cache-dir user-emacs-directory)
+(defvar hog-number-of-jobs 4
+  "Number of jobs to use in Hog builds.")
+
+(defvar hog-template-cache-dir user-emacs-directory
+  "Directory in which to cache Vivado templates.")
+
 
 (defun hog--project-root ()
   "Get the root of the current version controlled project."
