@@ -641,12 +641,20 @@ template at a specific PATH."
     (save-excursion
       (goto-char (point-min))
       (while (< (line-number-at-pos) (line-number-at-pos (point-max)))
-        (let* ((link (hog--get-link-at-point))
-               (link-is-glob (file-expand-wildcards link))
-               (link-exists (file-exists-p link)))
-          (when (not (or link-exists link-is-glob))
-            (setq errors (+ 1 errors))
-            (princ (format "Error:%d %s not found\n" (line-number-at-pos) link))))
+
+        ;; skip comments
+        (when (not (string-match "^\s*#.*"
+                                 (buffer-substring-no-properties
+                                  (line-beginning-position)
+                                  (line-end-position))))
+
+          (let* ((link (hog--get-link-at-point))
+                 (link-is-glob (file-expand-wildcards link))
+                 (link-exists (file-exists-p link)))
+
+            (when (not (or link-exists link-is-glob))
+              (setq errors (+ 1 errors))
+              (princ (format "Error:%d %s not found\n" (line-number-at-pos) link)))))
         (forward-line))) errors))
 
 (provide 'hog)
