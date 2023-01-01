@@ -639,14 +639,15 @@ template at a specific PATH."
   "Check a Hog source file for broken links."
   (let ((errors 0))
     (save-excursion
-      (while (= 0 (forward-line))
+      (goto-char (point-min))
+      (while (< (line-number-at-pos) (line-number-at-pos (point-max)))
         (let* ((link (hog--get-link-at-point))
                (link-is-glob (file-expand-wildcards link))
                (link-exists (file-exists-p link)))
-          (print link-is-glob)
           (when (not (or link-exists link-is-glob))
             (setq errors (+ 1 errors))
-            (princ (format "Error:%d %s not found\n" (line-number-at-pos) link)))))) errors))
+            (princ (format "Error:%d %s not found\n" (line-number-at-pos) link))))
+        (forward-line))) errors))
 
 (provide 'hog)
 ;;; hog.el ends here
