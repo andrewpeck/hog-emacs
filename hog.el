@@ -595,7 +595,6 @@ template at a specific PATH."
           (let ((child-name (xml-get-attribute child 'label))
                 (treetype (xml-get-attribute child 'treetype)))
             (when (string= child-name (car path))
-              ;; (princ (format "       %s (search=%s)\n" child-name (car path)))
               (setq template-content
                     (if (not (string= treetype "template"))
                         (hog--vivado-decend-template child (cdr path))
