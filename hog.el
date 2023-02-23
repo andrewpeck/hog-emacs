@@ -57,16 +57,9 @@ Can be set in dir-locals to be changed on a per-project basis.")
 
 (defun hog--project-root ()
   "Get the root of the current version controlled project."
-  (if (functionp 'projectile-project-root)
-      (projectile-project-root)
-    (let ((vc-base-path nil)
-          (filepath (pwd)))
-      (condition-case err
-          (let ((vc-backend (ignore-errors (vc-responsible-backend filepath))))
-            (when vc-backend
-              (setq vc-base-path (vc-call-backend vc-backend 'root filepath))))
-        (error (message "Error creating vc-backend root name: %s" err)))
-      vc-base-path)))
+  (string-trim-right
+   (shell-command-to-string
+    "git rev-parse --show-superproject-working-tree")))
 
 (defun hog--get-projects ()
   "Get a list of available Hog projects."
