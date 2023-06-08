@@ -238,17 +238,16 @@ The resulting list is of the form:
             "/usr/lib/ghdl/src/std/v08/*.vhdl"
             "/usr/lib/ghdl/src/ieee2008/*.vhdl")))
 
-(setq hog-unisim-library
-  (list "unisim"
-        (list (format "%s/data/vhdl/src/unisims/unisim_VCOMP.vhd" hog-vivado-path))))
+(defvar hog-unisim-library
+      (list "unisim"
+            (list (format "%s/data/vhdl/src/unisims/unisim_VCOMP.vhd" hog-vivado-path))))
 
 ;;------------------------------------------------------------------------------
 ;; VHDL Tool YAML Config Generation
 ;;------------------------------------------------------------------------------
 
 (defvar hog-vhdl-tool-preferences
-  '(
-    ("TypeCheck"            . t)
+  '(("TypeCheck"            . t)
     ("MultiLineErrors"      . t)
     ("CheckOnChange"        . t)
     ("Lint"                 . t)
