@@ -52,6 +52,7 @@ Can be set in dir-locals to be changed on a per-project basis.")
   "Directory in which to cache Vivado templates.")
 
 (defun hog--check-for-vivado ()
+  "Check to see if vivado exists at the specified path."
   (when (not (file-exists-p hog-vivado-path))
     (error (concat "Vivado not found at " hog-vivado-path))))
 
