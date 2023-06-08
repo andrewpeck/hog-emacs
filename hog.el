@@ -77,16 +77,12 @@ Can be set in dir-locals to be changed on a per-project basis.")
   ;; /home/topham/project/Top/myproject --> myproject
 
   ;; list all directories in the Top/ folder
-  (let* ((hog-top-folder (format "%sTop" (hog--project-root))))
+  (let ((hog-top-folder (concat (hog--project-root) "Top")))
     (when (file-directory-p hog-top-folder)
-      (sort (split-string
-             (replace-regexp-in-string
-              "/hog.conf" ""
-              (replace-regexp-in-string
-               (concat  hog-top-folder "/") ""
-               (shell-command-to-string
-                (format "find %s -name hog.conf -type f" hog-top-folder)))))
-            #'string<))))
+      (sort (thread-last (shell-command-to-string (format "find %s -name hog.conf -type f" hog-top-folder))
+                         (replace-regexp-in-string (concat  hog-top-folder "/") "")
+                         (replace-regexp-in-string "/hog.conf" "")
+                         (split-string)) #'string<))))
 
 (defun hog--get-project-xml (project)
   "Return the XML (XPR) file for a given Hog PROJECT."
