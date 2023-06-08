@@ -57,9 +57,19 @@ Can be set in dir-locals to be changed on a per-project basis.")
 
 (defun hog--project-root ()
   "Get the root of the current version controlled project."
-  (string-trim-right
-   (shell-command-to-string
-    "git rev-parse --show-superproject-working-tree")))
+  (let ((submodule-parent
+         (string-trim-right
+          (shell-command-to-string
+           "git rev-parse --show-superproject-working-tree")))
+        (repo (string-trim-right
+               (shell-command-to-string
+                "git rev-parse --show-toplevel"))))
+
+    (let ((repo-root
+           (if (not  (string= submodule-parent ""))
+               submodule-parent repo)))
+      (if (not (string= repo-root ""))
+          (concat repo-root "/") ""))))
 
 (defun hog--get-projects ()
   "Get a list of available Hog projects."
