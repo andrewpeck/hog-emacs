@@ -522,7 +522,9 @@ in that path"
                 (princ (format "Removing %s\n" file))
                 (delete-directory file t)))))))
 
-    (princ (format  "Removed %d files, %f Mb" file-count (/ file-size 1000000)))))
+    (princ (format  "Removed %d files, %s"
+                    file-count
+                    (file-size-human-readable file-size)))))
 
 ;;------------------------------------------------------------------------------
 ;; Vivado Template Insertion
