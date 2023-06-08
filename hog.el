@@ -199,7 +199,13 @@ Parses the PPR file into a list of libraries and their sources."
   project-file)
 
 (defun hog--parse-project-xml (project)
-  "Parse a PROJECT xml file into a list."
+  "Parse a PROJECT xml file into a list.
+
+The resulting list is of the form:
+
+((library1 (file1 file2 file3))
+ (library2 (file1 file2 file3)))"
+
   (let* ((xml (hog--get-project-xml project))
          (extension (file-name-extension xml)))
     (cond ((string-equal extension "xpr")
@@ -225,10 +231,9 @@ Parses the PPR file into a list of libraries and their sources."
             "/usr/lib/ghdl/src/std/v08/*.vhdl"
             "/usr/lib/ghdl/src/ieee2008/*.vhdl")))
 
-(defvar hog-unisim-library
-  `("unisim" (
-              ,(format "%sdata/vhdl/src/unisims/unisim_VCOMP.vhd"
-                       hog-vivado-path))))
+(setq hog-unisim-library
+  (list "unisim"
+        (list (format "%s/data/vhdl/src/unisims/unisim_VCOMP.vhd" hog-vivado-path))))
 
 ;;------------------------------------------------------------------------------
 ;; VHDL Tool YAML Config Generation
@@ -322,49 +327,66 @@ Parses the PPR file into a list of libraries and their sources."
 ;;------------------------------------------------------------------------------
 
 (defvar hog--ghdl-ls-options
-  '(options
-    (ghdl_analysis .
-                   ["--workdir=work"
-                    "--ieee=synopsys"
-                    "-fexplicit"
-                    "--warn-library"
-                    "--warn-default-binding"
-                    "--warn-binding"
-                    "--warn-reserved"
-                    "--warn-nested-comment"
-                    "--warn-parenthesis"
-                    "--warn-vital-generic"
-                    "--warn-delayed-checks"
-                    "--warn-body"
-                    "--warn-specs"
-                    "--warn-runtime-error"
-                    "--warn-shared"
-                    "--warn-hide"
-                    "--warn-unused"
-                    "--warn-others"
-                    "--warn-pure"
-                    "--warn-static"
-                    "--std=08"
-                    "-fexplicit"])))
+  (let ((options (make-hash-table)))
+    (puthash 'ghdl_analysis
+             '("--workdir=work"
+               "--ieee=synopsys"
+               "-fexplicit"
+               "--warn-library"
+               "--warn-default-binding"
+               "--warn-binding"
+               "--warn-reserved"
+               "--warn-nested-comment"
+               "--warn-parenthesis"
+               "--warn-vital-generic"
+               "--warn-delayed-checks"
+               "--warn-body"
+               "--warn-specs"
+               "--warn-runtime-error"
+               "--warn-shared"
+               "--warn-hide"
+               "--warn-unused"
+               "--warn-others"
+               "--warn-pure"
+               "--warn-static"
+               "--std=08"
+               "-fexplicit")
+             options) options))
 
-(defun hog--ghdl-ls-format-file-list (file-list)
-  "FILE-LIST."
-  (list (cons 'files
-              (mapcar
-               (lambda (file-name) (list `(file . ,file-name) '(language . "vhdl")))
-               file-list))))
+(defun hog--ghdl-ls-format-lib (lib)
+  ""
+  (let ((libname (car lib))
+        (libfiles (cadr lib)))
+    (cl-flet ((format-lib-file (file)
+                               (list `(file . ,file)
+                                     '(language . "vhdl")
+                                     `(library . ,libname))))
+      (mapcar #'format-lib-file libfiles))))
+
+(defun hog--ghdl-ls-format-libs (libs)
+  ""
+  (apply #'append
+         (mapcar #'hog--ghdl-ls-format-lib libs)))
+
+(defun hog--ghdl-ls-make-config (libs)
+  ""
+  (let ((config (make-hash-table)))
+    (puthash 'options hog--ghdl-ls-options config)
+    (puthash 'files (hog--ghdl-ls-format-libs libs) config)
+    config))
 
 (hog--project-do!
  hog-ghdl-ls-create-project-json
  "Create GHDL-LS Json File"
- (if (not (string-equal project ""))
-     (progn (let ((output-file (format "%shdl-prj.json" (hog--project-root)))
-                  (files (apply #'append (mapcar #'cadr (hog--parse-project-xml project)))))
-              (with-temp-file output-file
-                (progn (insert (json-encode (append (list hog--ghdl-ls-options)
-                                                    (hog--ghdl-ls-format-file-list files))))
-                       (json-pretty-print-buffer)))))
-   (message "You must specify a valid project!")))
+ (if (string-equal project "")
+     (message "You must specify a valid project!")
+   (let ((output-file (format "%shdl-prj.json" (hog--project-root)))
+         (config (hog--ghdl-ls-make-config
+                  (append (list hog-unisim-library)
+                          (hog--parse-project-xml project)))))
+     (with-temp-file output-file
+       (progn (insert (json-encode config))
+              (json-pretty-print-buffer))))))
 
 ;;------------------------------------------------------------------------------
 ;; Hog Source File Mode
