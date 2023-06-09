@@ -305,11 +305,11 @@ The resulting list is of the form:
   (let ((lib-name (car library))
         (lib-files (car (cdr library)))
         (pad "  "))
-    (concat
-     (format "%s.files = [\n" lib-name)
-     (string-join (mapcar (lambda (file)
-                            (concat pad "\"" file "\",\n" )) lib-files))
-     "]\n")))
+
+    (format "\n%s.files = [\n%s]\n"
+            lib-name
+            (string-join (mapcar (lambda (file)
+                                   (concat pad "\"" file "\",\n" )) lib-files)))))
 
 (defun hog--vhdl-ls-parse-libs (libraries)
   "LIBRARIES."
