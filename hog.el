@@ -206,20 +206,23 @@ Parses the PPR file into a list of libraries and their sources."
   ;; FIXME need to parse the dang thing
   project-file)
 
-(defun hog--parse-project-xml (project)
-  "Parse a PROJECT xml file into a list.
+(defun hog--parse-xml (xml)
+  "Parse a Xilinx XML file into a list.
 
 The resulting list is of the form:
 
 ((library1 (file1 file2 file3))
  (library2 (file1 file2 file3)))"
 
-  (let* ((xml (hog--get-project-xml project))
-         (extension (file-name-extension xml)))
+  (let* ((extension (file-name-extension xml)))
     (cond ((string-equal extension "xpr")
            (hog--parse-vivado-xpr xml))
           ((string-equal extension "ppr")
            (hog--parse-ise-ppr xml)))))
+
+(defun hog--parse-project-xml (project)
+  "Parse a PROJECT xml file into a list."
+  (hog--parse-xml (hog--get-project-xml project)))
 
 (defun hog--append-to-library (src-list lib-name file-name)
   "SRC-LIST LIB-NAME FILE-NAME."
