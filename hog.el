@@ -1,10 +1,10 @@
 ;;; hog.el --- Functions for working with Hog -*- lexical-binding: t; -*-
 ;;
-;; Copyright (C) 2021-2022 Andrew Peck
+;; Copyright (C) 2021-2023 Andrew Peck
 
-;; Author: Andrew Peck <andrew.peck@cern.ch>
+;; Author: Andrew Peck <peckandrew@gmail.com>
 ;; URL: https://github.com/andrewpeck/hog-emacs
-;; Version: 0.0.0
+;; Version: 0.1.0
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: tools vhdl fpga
 ;;
@@ -25,7 +25,8 @@
 
 ;;; Commentary:
 ;;
-;; This extension facilitates the use of the FPGA build system Hog
+;; This extension facilitates the use of the FPGA build system Hog:
+;;
 ;; https://hog.readthedocs.io
 
 ;;; Code:
@@ -239,8 +240,8 @@ The resulting list is of the form:
             "/usr/lib/ghdl/src/ieee2008/*.vhdl")))
 
 (defvar hog-unisim-library
-      (list "unisim"
-            (list (format "%s/data/vhdl/src/unisims/unisim_VCOMP.vhd" hog-vivado-path))))
+  (list "unisim"
+        (list (format "%s/data/vhdl/src/unisims/unisim_VCOMP.vhd" hog-vivado-path))))
 
 ;;------------------------------------------------------------------------------
 ;; VHDL Tool YAML Config Generation
@@ -412,7 +413,8 @@ The resulting list is of the form:
        (submatch (* (any alphanumeric ?* ?_ ?- ?/ ?.)))))) ; file path
 
 (defvar hog--src-symbols-list
-  '("locked" "93" "nosynth" "noimpl" "nosim" "source" "SystemVerilog" "verilog_header" "XDC"))
+  '("locked" "93" "nosynth" "noimpl" "nosim" "source" "SystemVerilog"
+    "verilog_header" "XDC"))
 
 (defun hog--get-link-at-point ()
   "Return the link at point in a Hog src file."
@@ -572,8 +574,7 @@ the hierarchy of their PARENTS."
 (defun hog--stringify-templates (templates)
   "Stringifies a list of TEMPLATES.
 It joins together the path into a single string with separated by arrows."
-  (mapcar (lambda (x)
-            (string-join x " -> ")) templates))
+  (mapcar (lambda (x) (string-join x " -> ")) templates))
 
 (defun hog--template-cache (lang)
   "Return the path of the hog cached template list for a given LANG."
