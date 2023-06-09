@@ -441,24 +441,26 @@ function will unglob it and insert the explicit list of all files
 in that path"
   (interactive)
   (save-excursion
-    (let ((filename
-           (progn
-             (thing-at-point-looking-at hog--file-name-re)
-             (match-string-no-properties 1))))
+    (let* (;; Get the thing the cursor is looking at
+           (filename (progn (thing-at-point-looking-at hog--file-name-re)
+                            (match-string-no-properties 1)))
 
-      (let ((file-with-path
-             (concat (hog--project-root) filename)))
+           ;; Concat the absolute path onto the file name which is relative to
+           ;; the root of the repo
+           (file-with-path (concat (hog--project-root) filename))
 
-        (end-of-line)
-        (newline)
+           ;; Expand the absolute path
+           (files (file-expand-wildcards file-with-path nil))
 
-        (let* ((files (file-expand-wildcards  file-with-path nil))
-               (files-relative
-                (mapcar (lambda (x) (replace-regexp-in-string (hog--project-root) ""  x)) files)))
+           ;; Converted the expanded absolute file names back to relative ones
+           (files-relative (mapcar (lambda (x) (replace-regexp-in-string (hog--project-root) "" x)) files))
 
-          (insert (apply #'concat
-                         (mapcar (lambda (x) (concat x "\n"))
-                                 files-relative))))))))
+           ;; Concate everything together into a string
+           (files-expanded (string-join files-relative "\n")))
+
+      (end-of-line)
+      (newline)
+      (insert files-expanded))))
 
 (defvar hog-src-mode-map (make-sparse-keymap)
   "Keymap for `hog-src-mode'.")
