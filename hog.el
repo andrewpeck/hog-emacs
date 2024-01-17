@@ -1,6 +1,6 @@
 ;;; hog.el --- Functions for working with Hog -*- lexical-binding: t; -*-
 ;;
-;; Copyright (C) 2021-2023 Andrew Peck
+;; Copyright (C) 2021-2024 Andrew Peck
 
 ;; Author: Andrew Peck <peckandrew@gmail.com>
 ;; URL: https://github.com/andrewpeck/hog-emacs
@@ -423,11 +423,11 @@ The resulting list is of the form:
   "Return the link at point in a Hog src file."
   (let ((inhibit-message t))
     (let ((filename
-           (progn
-             (thing-at-point-looking-at hog--file-name-re)
-             (match-string-no-properties 1))))
-      (concat (hog--project-root)
-              filename))))
+           (progn (thing-at-point-looking-at hog--file-name-re)
+                  (match-string-no-properties 1))))
+      (if (and filename (not (string-empty-p filename)))
+          (concat (hog--project-root) filename)
+        (buffer-substring-no-properties (line-beginning-position) (line-end-position))))))
 
 ;; FIXME: does not work with file names with spaces
 ;; spaces should be escaped
@@ -665,7 +665,7 @@ template at a specific PATH."
       (while (< (line-number-at-pos) (line-number-at-pos (point-max)))
 
         ;; skip comments
-        (when (not (string-match "^\s*#.*"
+        (when (not (string-match "^#.*"
                                  (buffer-substring-no-properties
                                   (line-beginning-position)
                                   (line-end-position))))
@@ -674,9 +674,12 @@ template at a specific PATH."
                  (link-is-glob (file-expand-wildcards link))
                  (link-exists (file-exists-p link)))
 
-            (when (not (or link-exists link-is-glob))
+            (when (or (not link)
+                      (string-empty-p link)
+                      (not link-exists)
+                      (not link-is-glob))
               (setq errors (+ 1 errors))
-              (princ (format "Error:%d %s not found\n" (line-number-at-pos) link)))))
+              (princ (format "Error:%d \"%s\" not found\n" (line-number-at-pos) link)))))
         (forward-line))) errors))
 
 (provide 'hog)
