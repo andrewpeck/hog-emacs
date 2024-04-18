@@ -475,7 +475,7 @@ in that path"
     (,hog--file-name-re . (2  font-lock-doc-face)))                         ; ipbus decoder file
 
   ;; auto mode list
-  '("\\.src\\'" "\\.con\\'" "\\.lst\\'")
+  '("\\.sim\\'" "\\.src\\'" "\\.con\\'" "\\.lst\\'")
 
   ;; function list
   (list
