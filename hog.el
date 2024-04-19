@@ -60,7 +60,7 @@ Can be set in dir-locals to be changed on a per-project basis.")
 (defun hog--project-root ()
   "Get the root of the current version controlled project."
   (expand-file-name (or (vc-root-dir)
-                        (locate-dominating-file (buffer-file-name)".git"))))
+                        (locate-dominating-file (buffer-file-name) ".git"))))
 
 (defun hog--get-projects ()
   "Get a list of available Hog projects."
