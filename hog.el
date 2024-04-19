@@ -427,10 +427,15 @@ The resulting list is of the form:
 (defun hog-follow-link-at-point ()
   "Follow the Hog source file at point."
   (interactive)
-  ;; TODO: check if the file contains a wildcard suffix, if so open it as a directory
   (let ((file-with-path (hog--get-link-at-point)))
+
     (when (file-exists-p file-with-path)
-      (find-file file-with-path))))
+      (find-file file-with-path))
+
+    ;; check if the file contains a wildcard suffix, if so open it as a directory
+    (when (file-expand-wildcards file-with-path)
+      (find-file (file-name-directory
+                  (car (file-expand-wildcards file-with-path)))))))
 
 (defun hog-expand-glob-at-point ()
   "Unglob a globbed entry in a source file.
