@@ -114,10 +114,10 @@ executed, and DOCSTRING will be passed into the generated function."
          (progn (hog--run-command ,command project))
        (message "You must specify a valid project!"))))
 
-(hog--create-command! hog-create-project "Hog/CreateProject.sh" "Create a Hog project")
-(hog--create-command! hog-launch-synthesis (format "Hog/LaunchWorkflow.sh -synth_only -njobs %d" hog-number-of-jobs) "Launch Project Synthesis")
-(hog--create-command! hog-launch-impl (format "Hog/LaunchWorkflow.sh -impl_only -njobs %d" hog-number-of-jobs) "Launch Project Implementation")
-(hog--create-command! hog-launch-workflow (format "Hog/LaunchWorkflow.sh -njobs %d" hog-number-of-jobs) "Launch Project Full Workflow")
+(hog--create-command! hog-create-project "Hog/Do -recreate C" "Create a Hog project")
+(hog--create-command! hog-launch-synthesis (format "Hog/Do -njobs %d SYNTHESIS" hog-number-of-jobs) "Launch Project Synthesis")
+(hog--create-command! hog-launch-impl (format "Hog/Do -njobs %d IMPLEMENT" hog-number-of-jobs) "Launch Project Implementation")
+(hog--create-command! hog-launch-workflow (format "Hog/Do W -njobs %d" hog-number-of-jobs) "Launch Project Full Workflow")
 
 ;; TODO: check if the xml file exists, prompt to create if it doesn't
 (hog--project-do!
