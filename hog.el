@@ -659,14 +659,12 @@ template at a specific PATH."
                                   (line-end-position))))
 
           (let* ((link (hog--get-link-at-point)))
-            (when link
-              (let ((link-is-glob (file-expand-wildcards link))
-                    (link-exists (file-exists-p link)))
-                (when (and (not (string-empty-p link))
-                           (not link-is-glob)
-                           (not link-exists))
+            (when (and link
+                       (not (string-empty-p link))
+                       (not (file-expand-wildcards link))
+                       (not (file-exists-p link)))
                   (setq errors (+ 1 errors))
-                  (princ (format "Error:%d \"%s\" not found\n" (line-number-at-pos) link)))))))
+                  (princ (format "Error:%d \"%s\" not found\n" (line-number-at-pos) link)))))
         (forward-line))) errors))
 
 (provide 'hog)
