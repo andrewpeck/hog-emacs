@@ -126,15 +126,19 @@ executed, and DOCSTRING will be passed into the generated function."
  (progn
    (hog--check-for-vivado)
    (let ((project-file (hog--get-project-xml project)))
-     (if (and project-file (file-exists-p project-file))
-         (progn
-           (let ((command (format "cd %s && source %s && vivado %s &"
-                                  (hog--project-root)
-                                  (concat  hog-vivado-path "/settings64.sh")
-                                  project-file)))
-             (message (format "Opening Hog Project %s" project))
-             (start-process "*vivado*" nil "setsid" command)))
-       (message (format "Project file %s not found!" project-file))))))
+
+     (when (not project-file)
+       (error (concat "No project file found for " project)))
+
+     (when (not (file-exists-p project-file))
+       (error (concat "Project file does not exist at " project-file)))
+
+     (let ((command (format "cd %s && source %s && vivado %s &"
+                            (hog--project-root)
+                            (concat  hog-vivado-path "/settings64.sh")
+                            project-file)))
+       (message (format "Opening Hog Project %s" project))
+       (call-process "bash" nil 0 nil "-c" command)))))
 
 (defun hog--run-command (command project &rest args)
   "Run a Hog COMMAND for a given PROJECT.
@@ -147,7 +151,7 @@ colorize it using CCZE, with the Hog arguments ARGS."
 
     ;; construct the output command
     (let ((cmd-str (format "cd %s && source %s && %s | tee hog.log %s"
-                           (hog--project-root) ;; cd %s
+                           (hog--project-root)                        ;; cd %s
                            (concat  hog-vivado-path "/settings64.sh") ;; source vivado
                            (concat
                             ;; path/Hog/Launch{X}.sh project <args>
