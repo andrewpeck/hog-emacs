@@ -422,6 +422,21 @@ The resulting list is of the form:
           (concat (hog--project-root) filename)
         (buffer-substring-no-properties (line-beginning-position) (line-end-position))))))
 
+(defun hog-init-project ()
+  "Init a Hog project in the current directory."
+  (interactive)
+  (shell-command "git submodule add https://gitlab.com/hog-cern/Hog.git")
+  (when (not (file-exists-p ".gitignore"))
+    (shell-command "cp Hog/Templates/gitignore .gitignore"))
+
+  (when (not (file-exists-p ".gitlab-ci.yml"))
+    (shell-command "cp Hog/Templates/gitlab-ci.yml .gitlab-ci.yml"))
+
+  (when (not (file-exists-p "Top/project/hog.conf"))
+    (mkdir "Top/project" t)
+    (mkdir "Top/project/list" t)
+    (shell-command "cp Hog/Templates/hog_vivado.conf Top/project/hog.conf")))
+
 ;; FIXME: does not work with file names with spaces
 ;; spaces should be escaped
 (defun hog-follow-link-at-point ()
