@@ -93,28 +93,28 @@ NAME is the function name
 DOCSTRING will be the DOCSTRING of the generated function
 
 BODY is the body of the command that should be executed"
-  `(autoload (quote ,name) "hog" ,docstring t)
-  `(defun ,name (project)
-     ,docstring
-     (interactive (list (completing-read "Project: " (hog--get-projects) nil t)))
-     (if (not (string-empty-p project))
-         (eval ,body)
-       (message "You must specify a valid project!"))))
+  `(progn (autoload (quote ,name) "hog" ,docstring t)
+          (defun ,name (project)
+            ,docstring
+            (interactive (list (completing-read "Project: " (hog--get-projects) nil t)))
+            (if (not (string-empty-p project))
+                (eval ,body)
+              (message "You must specify a valid project!")))))
 
 (defmacro hog--create-command! (name command docstring)
   "Macro to create a Hog interactive command.
 NAME is the function name, COMMAND is the command that should be
 executed, and DOCSTRING will be passed into the generated function."
-  `(autoload (quote ,name) "hog" ,docstring t)
-  `(defun ,name (project)
-     ,docstring
-     (interactive (list (completing-read "Project: "
-                                         (hog--get-projects)
-                                         nil
-                                         t)))
-     (if (not (string-empty-p project))
-         (progn (hog--run-command ,command project))
-       (message "You must specify a valid project!"))))
+  `(progn (autoload (quote ,name) "hog" ,docstring t)
+          (defun ,name (project)
+           ,docstring
+           (interactive (list (completing-read "Project: "
+                                               (hog--get-projects)
+                                               nil
+                                               t)))
+           (if (not (string-empty-p project))
+               (progn (hog--run-command ,command project))
+             (message "You must specify a valid project!")))))
 
 (hog--create-command! hog-create-project "Hog/Do -recreate C" "Create a Hog project")
 (hog--create-command! hog-launch-synthesis (format "Hog/Do -njobs %d SYNTHESIS" hog-number-of-jobs) "Launch Project Synthesis")
