@@ -85,62 +85,70 @@ Can be set in dir-locals to be changed on a per-project basis.")
      ((file-exists-p ppr) ppr)
      (t (error (format  "Project %s XML not found!" project))))))
 
-(defmacro hog--project-do! (name docstring body)
-  "Macro to create an arbitrary Hog interactive command.
+(defun hog--get-project ()
+  "Interactively get a hog project."
+  (completing-read "Project: " (hog--get-projects) nil t))
 
-NAME is the function name
+(defun hog--get-project-and-do-lisp (fn)
+  "Interactively get a Hog project and call FN on it.
 
-DOCSTRING will be the DOCSTRING of the generated function
+FN should be a function which take a project as an argument."
+  (let ((project (hog--get-project)))
+    (if (not (string-empty-p project))
+        (funcall fn project)
+      (message "You must specify a valid project!"))))
 
-BODY is the body of the command that should be executed"
-  `(progn (autoload (quote ,name) "hog" ,docstring t)
-          (defun ,name (project)
-            ,docstring
-            (interactive (list (completing-read "Project: " (hog--get-projects) nil t)))
-            (if (not (string-empty-p project))
-                (eval ,body)
-              (message "You must specify a valid project!")))))
+(defun hog--get-project-and-run-command (command)
+  "Interactively get a hog project and run a COMMAND on it."
+  (hog--get-project-and-do-lisp
+   (lambda (project) (hog--run-command command project))))
 
-(defmacro hog--create-command! (name command docstring)
-  "Macro to create a Hog interactive command.
-NAME is the function name, COMMAND is the command that should be
-executed, and DOCSTRING will be passed into the generated function."
-  `(progn (autoload (quote ,name) "hog" ,docstring t)
-          (defun ,name (project)
-           ,docstring
-           (interactive (list (completing-read "Project: "
-                                               (hog--get-projects)
-                                               nil
-                                               t)))
-           (if (not (string-empty-p project))
-               (progn (hog--run-command ,command project))
-             (message "You must specify a valid project!")))))
+;;;###autoload
+(defun hog-create-project ()
+  "Create a Hog project."
+  (interactive)
+  (hog--get-project-and-run-command "Hog/Do -recreate C"))
 
-(hog--create-command! hog-create-project "Hog/Do -recreate C" "Create a Hog project")
-(hog--create-command! hog-launch-synthesis (format "Hog/Do -njobs %d SYNTHESIS" hog-number-of-jobs) "Launch Project Synthesis")
-(hog--create-command! hog-launch-impl (format "Hog/Do -njobs %d IMPLEMENT" hog-number-of-jobs) "Launch Project Implementation")
-(hog--create-command! hog-launch-workflow (format "Hog/Do W -njobs %d" hog-number-of-jobs) "Launch Project Full Workflow")
+;;;###autoload
+(defun hog-launch-synthesis ()
+  "Launch Hog Project Synthesis."
+  (interactive)
+  (hog--get-project-and-run-command (format "Hog/Do -njobs %d SYNTHESIS" hog-number-of-jobs)))
 
-;; TODO: check if the xml file exists, prompt to create if it doesn't
-(hog--project-do!
- hog-open-project
+;;;###autoload
+(defun hog-launch-implementation ()
+  "Launch Hog Project Implementation."
+  (interactive)
+  (hog--get-project-and-run-command (format "Hog/Do -njobs %d IMPLEMENT" hog-number-of-jobs)))
+
+;;;###autoload
+(defun hog-launch-workflow ()
+  "Launch Hog Project Workflow."
+  (interactive)
+  (hog--get-project-and-run-command (format "Hog/Do W -njobs %d" hog-number-of-jobs)))
+
+;;;###autoload
+(defun hog-open-project ()
  "Open the Hog PROJECT."
- (progn
-   (hog--check-for-vivado)
-   (let ((project-file (hog--get-project-xml project)))
+ ;; TODO: check if the xml file exists, prompt to create if it doesn't
+ (hog--get-project-and-do-lisp
+  (lambda (project)
+    (progn
+      (hog--check-for-vivado)
+      (let ((project-file (hog--get-project-xml project)))
 
-     (when (not project-file)
-       (error (concat "No project file found for " project)))
+        (when (not project-file)
+          (error (concat "No project file found for " project)))
 
-     (when (not (file-exists-p project-file))
-       (error (concat "Project file does not exist at " project-file)))
+        (when (not (file-exists-p project-file))
+          (error (concat "Project file does not exist at " project-file)))
 
-     (let ((command (format "cd %s && source %s && vivado %s &"
-                            (hog--project-root)
-                            (concat  hog-vivado-path "/settings64.sh")
-                            project-file)))
-       (message (format "Opening Hog Project %s" project))
-       (call-process "bash" nil 0 nil "-c" command)))))
+        (let ((command (format "cd %s && source %s && vivado %s &"
+                               (hog--project-root)
+                               (concat  hog-vivado-path "/settings64.sh")
+                               project-file)))
+          (message (format "Opening Hog Project %s" project))
+          (call-process "bash" nil 0 nil "-c" command)))))))
 
 (defun hog--run-command (command project &rest args)
   "Run a Hog COMMAND for a given PROJECT.
@@ -274,26 +282,28 @@ The resulting list is of the form:
     ("DisconnectedPorts"         . t)
     ("IntNoRange"                . t)))
 
-(hog--project-do!
- hog-vhdl-tool-create-project-yaml
- "Create a VHDL-tool yaml file for a Hog PROJECT"
- (with-temp-file (format "%s/vhdltool-config.yaml" (hog--project-root))
-   (progn
-     (insert
-      (json-encode
-       (list (cons 'Libraries
-                   (mapcar (lambda (lib)
-                             (list (cons 'name (car lib))
-                                   (cons 'paths (apply #'vector (cadr lib)))))
-                           (append
-                            (hog--parse-project-xml project)
-                            (list hog-ieee-library)
-                            (list hog-unisim-library))))
-             (cons 'Preferences
-                   hog-vhdl-tool-preferences)
-             (cons 'Lint
-                   hog-vhdl-tool-lint-settings)))))
-   (json-pretty-print-buffer)))
+;;;###autoload
+(defun hog-vhdl-tool-create-project-yaml ()
+ "Create a VHDL-tool yaml file for a Hog PROJECT."
+ (hog--get-project-and-do-lisp
+  (lambda (project)
+    (with-temp-file (format "%s/vhdltool-config.yaml" (hog--project-root))
+      (progn
+        (insert
+         (json-encode
+          (list (cons 'Libraries
+                      (mapcar (lambda (lib)
+                                (list (cons 'name (car lib))
+                                      (cons 'paths (apply #'vector (cadr lib)))))
+                              (append
+                               (hog--parse-project-xml project)
+                               (list hog-ieee-library)
+                               (list hog-unisim-library))))
+                (cons 'Preferences
+                      hog-vhdl-tool-preferences)
+                (cons 'Lint
+                      hog-vhdl-tool-lint-settings)))))
+      (json-pretty-print-buffer)))))
 
 ;;------------------------------------------------------------------------------
 ;; VHDL LS TOML Project File Creation
@@ -321,11 +331,13 @@ The resulting list is of the form:
       (setq text (concat text (hog--vhdl-ls-lib-to-string library))))
     text))
 
-(hog--project-do!
- hog-vhdl-ls-create-project-toml
- "Create a VHDL-ls yaml file for a Hog PROJECT"
- (let ((yaml (hog--vhdl-ls-parse-libs (hog--parse-project-xml project))))
-   (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (hog--project-root)))))
+;;;###autoload
+(defun hog-vhdl-ls-create-project-toml ()
+ "Create a VHDL-ls yaml file for a Hog PROJECT."
+ (hog--get-project-and-do-lisp
+  (lambda (project)
+    (let ((yaml (hog--vhdl-ls-parse-libs (hog--parse-project-xml project))))
+      (shell-command (format "echo '%s' > %svhdl_ls.toml" yaml (hog--project-root)))))))
 
 ;;------------------------------------------------------------------------------
 ;; GHDL-LS JSON Project File Creation
@@ -380,18 +392,20 @@ The resulting list is of the form:
     (puthash 'files (hog--ghdl-ls-format-libs libs) config)
     config))
 
-(hog--project-do!
- hog-ghdl-ls-create-project-json
- "Create GHDL-LS Json File"
- (if (string-equal project "")
-     (message "You must specify a valid project!")
-   (let ((output-file (format "%shdl-prj.json" (hog--project-root)))
-         (config (hog--ghdl-ls-make-config
-                  (append (list hog-unisim-library)
-                          (hog--parse-project-xml project)))))
-     (with-temp-file output-file
-       (progn (insert (json-encode config))
-              (json-pretty-print-buffer))))))
+;;;###autoload
+(defun hog-ghdl-ls-create-project-json () 
+  "Create GHDL-LS Json File."
+  (hog--get-project-and-do-lisp
+   (lambda (project)
+     (if (string-equal project "")
+         (message "You must specify a valid project!")
+       (let ((output-file (format "%shdl-prj.json" (hog--project-root)))
+             (config (hog--ghdl-ls-make-config
+                      (append (list hog-unisim-library)
+                              (hog--parse-project-xml project)))))
+         (with-temp-file output-file
+           (progn (insert (json-encode config))
+                  (json-pretty-print-buffer))))))))
 
 ;;------------------------------------------------------------------------------
 ;; Hog Source File Mode
