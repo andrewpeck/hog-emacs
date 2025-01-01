@@ -93,6 +93,7 @@ NAME is the function name
 DOCSTRING will be the DOCSTRING of the generated function
 
 BODY is the body of the command that should be executed"
+  `(autoload (quote ,name) "hog" ,docstring t)
   `(defun ,name (project)
      ,docstring
      (interactive (list (completing-read "Project: " (hog--get-projects) nil t)))
@@ -104,6 +105,7 @@ BODY is the body of the command that should be executed"
   "Macro to create a Hog interactive command.
 NAME is the function name, COMMAND is the command that should be
 executed, and DOCSTRING will be passed into the generated function."
+  `(autoload (quote ,name) "hog" ,docstring t)
   `(defun ,name (project)
      ,docstring
      (interactive (list (completing-read "Project: "
@@ -422,6 +424,7 @@ The resulting list is of the form:
           (concat (hog--project-root) filename)
         (buffer-substring-no-properties (line-beginning-position) (line-end-position))))))
 
+;;;###autoload
 (defun hog-init-project ()
   "Init a Hog project in the current directory."
   (interactive)
@@ -439,6 +442,7 @@ The resulting list is of the form:
 
 ;; FIXME: does not work with file names with spaces
 ;; spaces should be escaped
+;;;###autoload
 (defun hog-follow-link-at-point ()
   "Follow the Hog source file at point."
   (interactive)
@@ -452,6 +456,7 @@ The resulting list is of the form:
       (find-file (file-name-directory
                   (car (file-expand-wildcards file-with-path)))))))
 
+;;;###autoload
 (defun hog-expand-glob-at-point ()
   "Unglob a globbed entry in a source file.
 When pointed at a globbed (wildcard) in a source file, this
@@ -511,6 +516,7 @@ in that path"
   ;; docstring
   "Major mode for Hog src files")
 
+;;;###autoload
 (defun hog-clean-vivado-xci ()
   "Clean the output products of Vivado XCI Files."
   (interactive)
@@ -654,22 +660,27 @@ template at a specific PATH."
       ;; replace trailing tabs and insert the template
       (insert (replace-regexp-in-string "[[:blank:]]*$" "" template-text)))))
 
+;;;###autoload
 (defun hog-insert-vhdl-template ()
   "Insert a vivado vhdl template."
   (interactive (hog--insert-template 'vhdl)))
 
+;;;###autoload
 (defun hog-insert-verilog-template ()
   "Insert a vivado verilog template."
   (interactive (hog--insert-template 'verilog)))
 
+;;;###autoload
 (defun hog-insert-xdc-template ()
   "Insert a vivado XDC template."
   (interactive (hog--insert-template 'xdc)))
 
+;;;###autoload
 (defun hog-insert-systemverilog-template ()
   "Insert a vivado systemverilog template."
   (interactive (hog--insert-template 'systemverilog)))
 
+;;;###autoload
 (defun hog-check-src-file ()
   "Check a Hog source file for broken links."
   (let ((errors 0))
