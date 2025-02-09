@@ -1,6 +1,6 @@
 ;;; hog.el --- Functions for working with Hog -*- lexical-binding: t; -*-
 ;;
-;; Copyright (C) 2021-2024 Andrew Peck
+;; Copyright (C) 2021-2025 Andrew Peck
 
 ;; Author: Andrew Peck <peckandrew@gmail.com>
 ;; URL: https://github.com/andrewpeck/hog-emacs
@@ -469,6 +469,11 @@ The resulting list is of the form:
     (when (file-expand-wildcards file-with-path)
       (find-file (file-name-directory
                   (car (file-expand-wildcards file-with-path)))))))
+
+(defun hog-add-src-file ()
+  "Add a source file in the current project."
+  (interactive)
+  (insert (completing-read "File: " (split-string (shell-command-to-string "git ls-files --full-name :/*.vhd :/*.vhd :/*.sv :/*.v :/*.svh :/*.src :/*.xdc :/*.tcl")))))
 
 ;;;###autoload
 (defun hog-expand-glob-at-point ()
